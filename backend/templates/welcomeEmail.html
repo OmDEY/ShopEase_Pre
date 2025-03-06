@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Email</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1e73be;
+            font-size: 28px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            margin: 0 0 20px;
+        }
+
+        .button {
+            background-color: #1e73be;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 30px auto;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 3px 15px rgba(30, 115, 190, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #155a8c;
+            transform: translateY(-3px);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to ShopEase!</h2>
+        <p>Hi {{firstName}},</p>
+        <p>Thank you for joining us! We're absolutely thrilled to have you on board. At ShopEase, you’re now part of a community that values quality and customer satisfaction.</p>
+        <p>Start discovering exclusive offers and the latest products tailored just for you!</p>
+        <a href="#" class="button">Start Shopping</a>
+        <p>Cheers,</p>
+        <p>The ShopEase Team</p>
+        <div class="footer-text">
+            <p>Need help? <a href="mailto:support@shopease.com">Contact Us</a></p>
+        </div>
+    </div>
+</body>
+</html>
