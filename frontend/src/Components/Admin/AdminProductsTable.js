@@ -43,8 +43,7 @@ const AdminProductsTable = () => {
 
     const fetchProducts = async () => {
         const response = await fetchAllProducts(page, 5);
-        const data = await response.json();
-        console.log(data);
+        const data = await response.data;
         setProducts(data.products);
         setTotalPages(Math.ceil((data.totalProducts) / 5));
     };

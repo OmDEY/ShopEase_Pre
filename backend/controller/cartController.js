@@ -68,7 +68,15 @@ const getCart = async (req, res) => {
 
         // Check if the cart exists
         if (!cart) {
-            return res.status(404).json({ message: 'Cart not found for this user' });
+            return res.status(200).json({
+                success: true,
+                cart: {
+                    items: [],
+                    totalItems: 0,
+                    totalPrice: 0,
+                    updatedAt: null
+                }
+            });
         }
 
         // Return cart details as JSON
