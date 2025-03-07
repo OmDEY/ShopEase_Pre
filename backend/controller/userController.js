@@ -75,7 +75,7 @@ const registerUser = async (req, res) => {
             expiresIn: '1d',
         });
 
-        await emailQueue.add({ email, firstName }, { removeOnComplete: true });
+        emailQueue.add({ email, firstName }, { removeOnComplete: true });
 
         res.status(201).json({
             msg: 'User registered successfully',
