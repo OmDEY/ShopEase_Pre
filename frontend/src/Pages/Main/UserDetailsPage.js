@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { captureUserData } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const UserDetailsPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     // firstName: '',
     // lastName: '',
@@ -51,6 +53,21 @@ const UserDetailsPage = () => {
           toast.success(response?.data?.msg);
         }
 
+        setFormData({
+          // firstName: '',
+          // lastName: '',
+          // email: '',
+          phoneNumber: '',
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: '',
+        });
+
+        navigate('/');
+
       })
       .catch((error) => {
         console.error(error);
@@ -61,6 +78,19 @@ const UserDetailsPage = () => {
   const handleSkip = () => {
     // Logic for skipping the step, e.g., redirecting to the home page
     console.log('Skipped User Details');
+    setFormData({
+      // firstName: '',
+      // lastName: '',
+      // email: '',
+      phoneNumber: '',
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: '',
+    });
+    navigate('/');
   };
 
   return (
