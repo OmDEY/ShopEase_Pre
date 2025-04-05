@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { SearchContext } from '../../Context/ContextProvider';
+import { useNavigate } from 'react-router-dom';
 
 // Dummy data for categories
 const categoryData = {
@@ -60,8 +62,12 @@ const categoryData = {
 const cardColors = ['bg-blue-100', 'bg-yellow-100', 'bg-green-100', 'bg-pink-100', 'bg-purple-100'];
 
 const FeaturedCategories = () => {
+
+    const {setSearchTerm} = useContext(SearchContext);
+
     const [activeCategory, setActiveCategory] = useState('Cake & Milk');
     const [startIndex, setStartIndex] = useState(0);
+    const navigate = useNavigate();
     const cardsPerView = 8; // Number of cards visible at a time
 
     // Function to handle tab click
@@ -81,6 +87,13 @@ const FeaturedCategories = () => {
         if (startIndex < categoryData[activeCategory].length - cardsPerView) {
             setStartIndex(startIndex + 1);
         }
+    };
+
+    const handleProductClick = (product) => {
+        // Handle product click (e.g., navigate to product details)
+        setSearchTerm(product.name);
+        navigate(`/products`);
+        console.log('Product clicked:', product);
     };
 
     return (
@@ -123,6 +136,7 @@ const FeaturedCategories = () => {
                         <div 
                             key={product.id} 
                             className={`relative ${cardColors[index % cardColors.length]} p-2 rounded-lg overflow-hidden shadow-lg transition-transform transform hover:scale-105 w-32 h-32 flex flex-col items-center justify-center`}
+                            onClick={() => handleProductClick(product)}
                         >
                             {/* PNG Image */}
                             <img src={product.image} alt={product.name} className="w-12 h-12 object-contain mb-2" />

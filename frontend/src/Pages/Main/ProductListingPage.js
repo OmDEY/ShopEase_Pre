@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../Context/ContextProvider';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addToCart, fetchAllProducts, fetchProductsFiltered } from '../../services/api';
+import { addToCart, fetchAllProducts, fetchProductsFiltered, fetchOptions, fetchProductsOnFilter } from '../../services/api';
+import Filters from '../../Pages/Main/Filters';
 
 // Dummy product data
 const DummyProducts = [
@@ -13,13 +14,6 @@ const DummyProducts = [
     { id: 2, title: 'Product 2', images: ['https://via.placeholder.com/400x300'], rating: 4.7, description: 'Product 2 description.', category: 'Brand B', price: 150 },
     { id: 3, title: 'Product 3', images: ['https://via.placeholder.com/400x300'], rating: 4.3, description: 'Product 3 description.', category: 'Brand C', price: 200 },
     { id: 4, title: 'Product 4', images: ['https://via.placeholder.com/400x300'], rating: 4.8, description: 'Product 4 description.', category: 'Brand D', price: 250 },
-];
-
-// Dummy filter data
-const filters = [
-    { id: 1, label: 'Category', options: ['Category 1', 'Category 2', 'Category 3'] },
-    { id: 2, label: 'Brand', options: ['Brand A', 'Brand B', 'Brand C'] },
-    { id: 3, label: 'Rating', options: ['4 stars & up', '3 stars & up', '2 stars & up'] },
 ];
 
 const STEP = 10;
@@ -48,6 +42,7 @@ const ProductListingPage = () => {
     const [totalProducts, setTotalProducts] = useState(0);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [filterOptions, setFilterOptions] = useState([]);
+    const [categories, setCategories] = useState([]); 
 
     const [colors, setColors] = useState([
         'Red',
@@ -103,7 +98,25 @@ const ProductListingPage = () => {
     useEffect(() => {
         // If searchResults exist, use them; otherwise, use DummyProducts
         searchProductsFiltered();
+        searchFilters();
     }, [searchTerm]); // Update when searchResults change
+
+    useEffect(() => {
+        // Extract unique category names from the products
+        const uniqueCategories = products?.length ? [...new Set(products?.map(product => product?.category))] : [];
+        console.log('uniqueCategories', uniqueCategories);
+        setCategories(uniqueCategories);
+    }, [products]);
+
+    const searchFilters = () => {
+        fetchOptions()
+            .then(response => {
+                setFilterOptions(response.data.filters);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    };
 
     const searchProductsFiltered = () => {
         // Implement your logic to fetch filtered products
@@ -128,6 +141,13 @@ const ProductListingPage = () => {
         }
     };
 
+    const handleFilterApply = async (formattedFilters) => {
+        const response = await fetchProductsOnFilter(formattedFilters);
+        console.log("Filters applied successfully", response.data);
+        setProducts(response?.data?.data);
+        setTotalProducts(response?.data?.data?.length);
+    };
+
     const [values, setValues] = useState([0, 150]);
 
     return (
@@ -135,146 +155,13 @@ const ProductListingPage = () => {
             <div className="px-4 lg:px-8 py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Left Filters Section */}
-                    <div className="col-span-1 bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-3xl font-extrabold mb-8 text-gray-800">Filters</h2>
-
-                        {/* Category Filter */}
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4 text-gray-700">Category</h3>
-                            <ul className="space-y-2">
-                                {filters.map((filter) => (
-                                    <li key={filter.id}>
-                                        <label className="flex items-center space-x-3 cursor-pointer">
-                                            <input type="checkbox" className="form-checkbox h-5 w-5 text-indigo-600" />
-                                            <span className="text-gray-600">{filter.label}</span>
-                                        </label>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Price Range Filter */}
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4 text-gray-700">Price Range</h3>
-                            <Range
-                                step={STEP}
-                                min={MIN}
-                                max={MAX}
-                                values={values}
-                                onChange={(values) => setValues(values)}
-                                renderTrack={({ props, children }) => (
-                                    <div
-                                        {...props}
-                                        className="h-2 bg-gray-300 rounded-full"
-                                        style={{
-                                            ...props.style,
-                                            background: `linear-gradient(to right, #4F46E5 ${100 * (values[0] / MAX)}%, #22C55E ${100 * (values[1] / MAX)}%)`,
-                                        }}
-                                    >
-                                        {children}
-                                    </div>
-                                )}
-                                renderThumb={({ props }) => (
-                                    <div
-                                        {...props}
-                                        className="h-4 w-4 bg-blue-500 rounded-full"
-                                    />
-                                )}
-                            />
-                            <div className="mt-2 flex justify-between text-sm text-gray-500">
-                                <span>${values[0]}</span>
-                                <span>${values[1]}</span>
-                            </div>
-                        </div>
-
-                        {/* Brand Filter */}
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4 text-gray-700">Brand</h3>
-                            <ul className="space-y-2">
-                                {brands.map((brand, idx) => (
-                                    <li key={idx}>
-                                        <label className="flex items-center space-x-3 cursor-pointer">
-                                            <input type="checkbox" className="form-checkbox h-5 w-5 text-indigo-600" />
-                                            <span className="text-gray-600">{brand}</span>
-                                        </label>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Color Filter */}
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4 text-gray-700">Color</h3>
-                            <div className="flex flex-wrap space-x-3">
-                                {colors.map((color, idx) => {
-                                    // Function to validate the color name
-                                    const isColorValid = (color) => {
-                                        const s = new Option().style;
-                                        s.color = color;
-                                        return s.color !== '';
-                                    };
-
-                                    // Set a fallback color if the color name is invalid
-                                    const circleColor = isColorValid(color) ? color.toLowerCase() : 'gray';
-
-                                    return (
-                                        <div key={idx} className="flex items-center mb-2">
-                                            <label className="cursor-pointer">
-                                                <span
-                                                    className="block w-6 h-6 rounded-full border border-gray-200 shadow-md"
-                                                    style={{ backgroundColor: circleColor }}
-                                                ></span>
-                                            </label>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-
-                        {/* Rating Filter */}
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4 text-gray-700">Rating</h3>
-                            <ul className="space-y-2">
-                                {[5, 4, 3, 2, 1].map((rating) => (
-                                    <li key={rating}>
-                                        <label className="flex items-center space-x-3 cursor-pointer">
-                                            <input type="checkbox" className="form-checkbox h-5 w-5 text-indigo-600" />
-                                            <div className="flex items-center">
-                                                {[...Array(rating)].map((_, idx) => (
-                                                    <svg
-                                                        key={idx}
-                                                        className="w-4 h-4 fill-current text-yellow-400"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L17.82 21 12 17.77 6.18 21 7 14.14l-5-4.87 6.91-1L12 2z" />
-                                                    </svg>
-                                                ))}
-                                            </div>
-                                        </label>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Apply and Clear Buttons */}
-                        <div className="flex space-x-4">
-                            <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
-                                Apply Filters
-                            </button>
-                            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-300">
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
+                    
+                    <Filters filtersData={filterOptions} categories={categories} handleFilterApply={handleFilterApply} /> 
 
 
                     {/* Right Product Listing Section */}
                     <div className="col-span-3">
-                        {products.length > 0 ? (
+                        {products?.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                                 {products.map((product) => (
                                     <div
@@ -303,7 +190,7 @@ const ProductListingPage = () => {
                                                 onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed
                                                 className="text-xs text-gray-500 mb-2"
                                             >
-                                                {product?.category}
+                                                {product?.category?.categoryName}
                                             </p>
                                             <div
                                                 onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed 
@@ -345,15 +232,21 @@ const ProductListingPage = () => {
                                 >
                                     {'<'}
                                 </button>
-                                {[...Array(Math.ceil(totalProducts / limit)).keys()].map(pageNumber => (
-                                    <button
-                                        onClick={() => handlePageChange(pageNumber)}
-                                        key={pageNumber}
-                                        className={`px-4 py-2 hover:bg-gray-100 transition duration-300 ${currentPage === pageNumber ? 'bg-blue-500 text-white rounded-full' : ''}`}
-                                    >
-                                        {pageNumber + 1}
-                                    </button>
-                                ))}
+                                {typeof totalProducts === 'number' && totalProducts > 0 && limit > 0 ? (
+                                    [...Array(Math.ceil(totalProducts / limit)).keys()].map(pageNumber => (
+                                        <button
+                                            onClick={() => handlePageChange(pageNumber)}
+                                            key={pageNumber}
+                                            className={`px-4 py-2 hover:bg-gray-100 transition duration-300 ${currentPage === pageNumber ? 'bg-blue-500 text-white rounded-full' : ''}`}
+                                        >
+                                            {pageNumber + 1}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <span className="px-4 py-2">
+                                        No pages to navigate
+                                    </span>
+                                )}
                                 <button
                                     onClick={handleNextPage}
                                     className="px-4 py-2 hover:bg-gray-100 transition duration-300"

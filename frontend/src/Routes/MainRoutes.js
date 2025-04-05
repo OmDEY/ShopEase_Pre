@@ -12,6 +12,9 @@ import UserDetailsPage from '../Pages/Main/UserDetailsPage';
 import AdminAuthPage from '../Pages/Main/AdminAuthPage';
 import ProtectedRoute from './ProtectedRoute';
 import { SearchContext } from '../Context/ContextProvider';
+import ProfilePage from '../Pages/Main/ProfilePage';
+import ComparisonTablePage from '../Pages/Main/ComparisonTablePage';
+import WishListPage from '../Pages/Main/WishListPage';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -22,7 +25,9 @@ const MainRoutes = () => {
       <Route path="/auth/userDetails" element={isAuthenticated ? <Navigate to="/" /> : <UserDetailsPage />} />
       <Route path="/auth/admin" element={isAuthenticated ? <Navigate to="/" /> : <AdminAuthPage />} />
       <Route path="/" element={<HomePage />} />
-
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/comparison" element={<ProtectedRoute><ComparisonTablePage /></ProtectedRoute>} />
+      <Route path="/wishlist" element={<ProtectedRoute><WishListPage /></ProtectedRoute>} />
       <Route path="/products" element={<ProtectedRoute><ProductListingPage /></ProtectedRoute>} />
       <Route path="/product" element={<ProtectedRoute><SingleProductDisplay /></ProtectedRoute>} />
       <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />

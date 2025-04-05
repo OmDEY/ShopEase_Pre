@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -9,6 +10,16 @@ const uploadHomePageBannerCarouselImages = async (formData) => {
         }
     });
 
+    return response;
+}
+
+const fetchProductsOnFilter = async (params) => {
+    const response = await axios.get(`${API_URL}products/fetchProductsOnFilter`, { params });
+    return response;
+}
+
+const fetchOptions = async () => {
+    const response = await axios.get(`${API_URL}products/fetchOptions`);
     return response;
 }
 
@@ -193,5 +204,7 @@ export {
     userVerifyToken,
     adminLogout,
     userLogin,
-    userRegister
+    userRegister,
+    fetchOptions,
+    fetchProductsOnFilter
 };
