@@ -1,6 +1,7 @@
 // ContextProvider.js
 import React, { createContext, useState, useEffect } from 'react';
 import { adminVerifyToken, userVerifyToken } from '../services/api';
+import LoadingPage from '../Pages/Loading/LoadingPage';
 
 export const SearchContext = createContext();
 
@@ -42,7 +43,7 @@ const ContextProvider = ({ children }) => {
 
   return (
     <SearchContext.Provider value={{ searchTerm, setSearchTerm, isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <LoadingPage /> : children}
     </SearchContext.Provider>
   );
 };
