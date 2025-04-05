@@ -3,6 +3,7 @@ const Category = require("../models/categories");
 const UserReview = require("../models/userReview"); // Adjust the path as necessary
 const cloudinary = require("../config/cloudinary");
 const mongoose = require("mongoose");
+const options = require("../options");
 
 const multer = require("multer");
 const upload = multer();
@@ -227,17 +228,98 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const fetchProductsOnFilter = async (req, res) => {
+  /*try {
+    const { filters } = req.query;
+    const products = await Product.find({ filters });
+    return res.status(200).json({ products });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }*/
+
+  try {
+    let filters = {};
+
+    // Extract query parameters
+    const { category, brand, colors, priceRange, searchTerm, ...otherFilters } = req.query;
+
+    // Category filter
+    if (category) {
+      filters.category = category;
+    }
+
+    // Brand filter
+    if (brand) {
+      filters.brand = brand;
+    }
+
+    // Colors filter (Multiple values comma-separated)
+    if (colors) {
+      const colorsArray = colors.split(",");
+      filters.colors = { $in: colorsArray };
+    }
+
+    // Price Range filter
+    if (priceRange) {
+      const [min, max] = priceRange.split(",").map(Number);
+      filters.price = { $gte: min, $lte: max };
+    }
+
+    // Dynamic filters inside categoryDetails
+    Object.keys(otherFilters).forEach((key) => {
+      filters[`categoryDetails.${key}`] = otherFilters[key];
+    });
+
+    if (searchTerm) {
+      // Escape special regex characters in the search term
+      const escapedSearchTerm = searchTerm.replace(
+        /[.*+?^=!:${}()|\[\]\/\\]/g,
+        "\\$&"
+      );
+
+      // Create the query for title and description using new RegExp
+      filters.$or = [
+        { title: { $regex: escapedSearchTerm, $options: "i" } },
+        { description: { $regex: escapedSearchTerm, $options: "i" } },
+      ];
+    }
+
+    console.log('filters', filters);
+
+    // Fetch products based on filters
+    const products = await Product.find(filters).populate('category', 'categoryName');
+
+    res.json({ success: true, data: products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 const fetchProductsFiltered = async (req, res) => {
   try {
     // Get filters from query parameters
-    const { category, minPrice, maxPrice, inStock, searchTerm } = req.query;
+    const {
+      categories, // Array of selected categories (could be a comma-separated string or an array)
+      minPrice,
+      maxPrice,
+      inStock,
+      searchTerm,
+      page = 1, // Default to page 1 if not specified
+      limit = 20, // Default limit of 20 items per page
+      ...dynamicFilters // Catch any additional dynamic filters sent in the request
+    } = req.query;
 
     // Build the query object based on the filters
     let query = {};
 
-    // Category filter
-    if (category) {
-      query.category = category;
+    // Category filter (handle multiple categories)
+    if (categories) {
+      const categoryList = Array.isArray(categories)
+        ? categories
+        : categories.split(",");
+      query.category = { $in: categoryList };
     }
 
     // Price range filter
@@ -249,30 +331,70 @@ const fetchProductsFiltered = async (req, res) => {
       query.price = { $lte: parseFloat(maxPrice) };
     }
 
-    // In stock filter
+    // In stock filter (if inStock is true, check for available stock)
     if (inStock) {
       query.stock = { $gt: 0 };
     }
 
     // Search term filter (for title or description)
     if (searchTerm) {
+      // Escape special regex characters in the search term
+      const escapedSearchTerm = searchTerm.replace(
+        /[.*+?^=!:${}()|\[\]\/\\]/g,
+        "\\$&"
+      );
+
+      // Create the query for title and description using new RegExp
       query.$or = [
-        { title: { $regex: searchTerm, $options: "i" } },
-        { description: { $regex: searchTerm, $options: "i" } },
+        { title: { $regex: escapedSearchTerm, $options: "i" } },
+        { description: { $regex: escapedSearchTerm, $options: "i" } },
       ];
     }
 
+    // Handle dynamic filters (like Brand, Warranty, Battery Life, etc.)
+    for (const filterLabel in dynamicFilters) {
+      const filterValue = dynamicFilters[filterLabel];
+
+      // Handle different filter types: checkbox, radio, dropdown, etc.
+      if (Array.isArray(filterValue)) {
+        // If it's an array (checkboxes or multiple selection dropdown), use $in for matching multiple values
+        query[filterLabel] = { $in: filterValue };
+      } else if (filterValue) {
+        // For single selection filters (radio, single value dropdown)
+        query[filterLabel] = filterValue;
+      }
+    }
+
+    console.log("query", query);
+
+    // Pagination: calculate the skip and limit for the page
+    const skip = (parseInt(page) - 1) * parseInt(limit); // Skip value
+    const limitNumber = parseInt(limit); // Limit value
+
     // Fetch products based on the constructed query
-    const products = await Product.find(query);
+    const products = await Product.find(query)
+      .populate("category", "categoryName") // Optional: if you want to populate category field
+      .skip(skip) // Skip products based on the page
+      .limit(limitNumber) // Limit the number of products per page
+      .exec();
+
+    // Get the total number of products matching the query (without pagination)
+    const totalProducts = await Product.countDocuments(query);
 
     // Handle case where no products are found
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });
     }
 
-    // Send the found products as the response
-    res.status(200).json({ products, totalProducts: products.length });
+    // Send the found products as the response along with pagination info
+    res.status(200).json({
+      products,
+      totalProducts,
+      page: parseInt(page),
+      limit: limitNumber,
+    });
   } catch (error) {
+    console.error("Error fetching products:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -314,6 +436,10 @@ const submitProductReview = async (req, res) => {
   }
 };
 
+const fetchOptions = async (req, res) => {
+  res.json(options);
+};
+
 module.exports = {
   addProduct,
   getProducts,
@@ -322,4 +448,6 @@ module.exports = {
   deleteProduct,
   fetchProductsFiltered,
   submitProductReview,
+  fetchOptions,
+  fetchProductsOnFilter,
 };

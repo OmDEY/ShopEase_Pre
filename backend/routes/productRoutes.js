@@ -10,6 +10,8 @@ router.put('/updateProduct/:id', imageUpload, productController.updateProduct);
 router.delete('/deleteProduct/:id', productController.deleteProduct);
 router.get('/fetchProductsFiltered', productController.fetchProductsFiltered);
 router.post('/submitProductReview', productController.submitProductReview);
+router.get('/fetchOptions', productController.fetchOptions);
+router.get('/fetchProductsOnFilter', productController.fetchProductsOnFilter);
 
 
 module.exports = router;
