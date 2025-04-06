@@ -47,14 +47,23 @@ const addProduct = async (req, res) => {
       ? colors
       : JSON.parse(colors || "[]");
 
+    console.log('mainImages >>> ', req.files)
+
     // Handle main images
     const mainImagesFiles = req.files.filter(
       (file) => file.fieldname === "mainImages"
     );
+
+    mainImagesFiles.forEach((file) => {
+      console.log('file', file);
+    });
+
     const mainImagesPromises = mainImagesFiles.map((file) =>
       uploadImageToCloudinary(file)
     );
     const mainImages = await Promise.all(mainImagesPromises);
+
+    console.log('mainImages', mainImages)
 
     // Handle additional info and its images
     const additionalImagesPromises = additionalInfo?.map(
@@ -97,7 +106,7 @@ const addProduct = async (req, res) => {
       category: categoryFound._id, // Save the reference to the category ID
       stock,
       categoryDetails, // Passing category details for Product
-      mainImages, // Store image URLs as an array of strings
+      images: mainImages, // Store image URLs as an array of strings
       brand,
       colors: colorsArray, // ✅ Save colors array in DB
       additionalInfo: additionalImages || [], // Store as array of objects
