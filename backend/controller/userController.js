@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const emailQueue = require('../Queue/emailQueue');
+const { addWelcomeEmail } = require('../Queue/emailQueue');
 require('dotenv').config();
 
 const verifyToken = async (req, res) => {
@@ -75,7 +75,7 @@ const registerUser = async (req, res) => {
             expiresIn: '1d',
         });
 
-        emailQueue.add({ email, firstName }, { removeOnComplete: true });
+        addWelcomeEmail(email, firstName);
 
         res.status(201).json({
             msg: 'User registered successfully',

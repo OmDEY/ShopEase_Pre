@@ -1,55 +1,35 @@
+// Queue/email.queue.js
 const Queue = require('bull');
-const nodemailer = require('nodemailer');
-const path = require('path');
+require('dotenv').config();
 
-// Create a new queue instance
 const emailQueue = new Queue('email', {
-    redis: { host: '127.0.0.1', port: 6379 },
-});
-
-// Nodemailer transporter setup
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: 'omdey3424@gmail.com',
-        pass: 'evas lfdg birz rdqd', // Use environment variables for security
+    redis: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+        password: process.env.REDIS_PASSWORD,
+        username: process.env.REDIS_USERNAME,
     },
 });
 
+console.log('📦 Email queue initialized');
 
-// Process the email queue
-emailQueue.process(async (job, done) => {
-    const filePath = path.join(__dirname, '../templates', 'welcomeEmail.html');
-    const fileExists = require('fs').existsSync(filePath);
-    if (!fileExists) {
-        throw new Error(`File not found: ${filePath}`);
-    }
-
-    const { email, firstName } = job.data;
-
-    console.log(`Sending email to ${email} with name ${firstName}`);
-
-    const mailOptions = {
-        from: 'omdey3424@gmail.com',
-        to: email,
-        subject: 'Welcome to ShopEase!',
-        html: require('fs').readFileSync(filePath, 'utf8').replace(/{{firstName}}/g, firstName),
-    };
-
-    try {
-        // Send the email
-        transporter.sendMail(mailOptions)
-            .then(() => {
-                console.log('Email sent successfully');
-                done(); // Notify Bull that the job is done
-            })
-            .catch((error) => {
-                console.error('Failed to send email:', error);
-                done(new Error('Failed to send email: ' + error.message));
-            });
-    } catch (error) {
-        done(new Error('Failed to send email: ' + error.message));
-    }
+emailQueue.on('error', (err) => {
+    console.error('🚨 Error in email queue:', err);
 });
 
-module.exports = emailQueue;
+emailQueue.on('completed', (job) => {
+    console.log('✅ Email job completed:', job.id, job.data);
+});
+
+emailQueue.on('failed', (job, err) => {
+    console.error('❌ Email job failed:', job.id, err.message);
+});
+
+// Export to add jobs from anywhere
+module.exports = {
+    emailQueue,
+    addWelcomeEmail: (email, firstName) => {
+        console.log(`📤 Adding email job to queue for: ${email}`);
+        emailQueue.add('sendEmail', { email, firstName });
+    }
+};
