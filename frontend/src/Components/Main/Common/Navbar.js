@@ -253,12 +253,12 @@ const Navbar = () => {
               About Us
             </Link>
             <span className="text-sm">|</span>
-            <span
-              onClick={toggleAccountDropdown}
+            <Link
+              to="/profile"
               className="text-sm cursor-pointer hover:underline"
             >
               My Account
-            </span>
+            </Link>
             <span className="text-sm">|</span>
             <Link
               to="/wishlist"
