@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api/';
+const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -181,6 +181,42 @@ const adminLogout = async () => {
     return response;
 }
 
+const addToWishlist = async (userId, productId) => {
+    const response = await axios.post(`${API_URL}wishlist/add`, { userId, productId });
+    return response;
+  };
+  
+  const getWishlist = async (userId) => {
+    const response = await axios.get(`${API_URL}wishlist/${userId}`);
+    return response;
+  };
+  
+  const removeFromWishlist = async (userId, productId) => {
+    const response = await axios.post(`${API_URL}wishlist/remove`, { userId, productId });
+    return response;
+  };
+  
+  const toggleWishlistItem = async (userId, productId) => {
+    const response = await axios.post(`${API_URL}wishlist/toggle`, { userId, productId });
+    return response;
+  };
+
+  const checkWishlist = async (userId, productId) => {
+    const res = await axios.get(`${API_URL}wishlist/check/${userId}/${productId}`);
+    return res.data.isInWishlist; // true or false
+  };
+
+  const createOrder = async (amount) => {
+    const response = await axios.post(`${API_URL}payment/create-order`, { amount });
+    return response;
+  };
+
+  const verifyPayment = async (data) => {
+    const response = await axios.post(`${API_URL}payment/verify-payment`, data);
+    return response;
+  };  
+  
+
 export {
     fetchUserById,
     fetchHomePageBannerCarouselImages,
@@ -206,5 +242,12 @@ export {
     userLogin,
     userRegister,
     fetchOptions,
-    fetchProductsOnFilter
+    fetchProductsOnFilter,
+    addToWishlist,
+    getWishlist,
+    removeFromWishlist,
+    toggleWishlistItem,
+    checkWishlist,
+    createOrder,
+    verifyPayment,
 };

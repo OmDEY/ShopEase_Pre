@@ -101,6 +101,15 @@ const CartPage = () => {
         );
     };
 
+    const handleCheckout = () => {
+        const isAnyProductOutOfStock = items.some(item => item.product?.stock <= 0);
+        if (isAnyProductOutOfStock) {
+            toast.error('Some products are out of stock, please remove them from cart');
+        } else {
+            navigate('/checkout');
+        }
+    }
+
     const RelatedProductCard = ({ product }) => (
         <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
             <div className="relative">
@@ -312,7 +321,7 @@ const CartPage = () => {
 
                                 {/* Checkout Button */}
                                 <button
-                                    onClick={() => navigate('/checkout')}
+                                    onClick={handleCheckout}
                                     disabled={items.length === 0}
                                     className={`mt-6 w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white ${items.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} transition-colors`}
                                 >

@@ -15,6 +15,8 @@ import { SearchContext } from '../Context/ContextProvider';
 import ProfilePage from '../Pages/Main/ProfilePage';
 import ComparisonTablePage from '../Pages/Main/ComparisonTablePage';
 import WishListPage from '../Pages/Main/WishListPage';
+import SuccessPage from '../Pages/Main/SuccessPage';
+import FailedPage from '../Pages/Main/FailedPage';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -33,6 +35,8 @@ const MainRoutes = () => {
       <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
       <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+      <Route path="/payment-success" element={<ProtectedRoute><SuccessPage /></ProtectedRoute>} />
+      <Route path="/payment-failed" element={<ProtectedRoute><FailedPage /></ProtectedRoute>} />
     </Routes>
   );
 };

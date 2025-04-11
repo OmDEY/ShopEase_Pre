@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../Context/ContextProvider';
 import { adminVerifyToken, userVerifyToken } from '../services/api';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin } = useContext(SearchContext);
@@ -21,6 +22,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
           setIsAuthenticated(true);
           setIsAdmin(adminOnly);
         } else {
+          toast.error(response?.data?.message);
           redirectToAuth();
         }
       } catch {

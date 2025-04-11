@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../Context/ContextProvider';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addToCart, fetchAllProducts, fetchProductsFiltered, fetchOptions, fetchProductsOnFilter } from '../../services/api';
+import { addToCart, fetchAllProducts, fetchProductsFiltered, fetchOptions, fetchProductsOnFilter, toggleWishlistItem } from '../../services/api';
 import Filters from '../../Pages/Main/Filters';
 import { motion } from 'framer-motion';
 import { FiHeart, FiShoppingCart, FiStar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
@@ -80,7 +80,11 @@ const ProductListingPage = () => {
     };
 
     const handleNextPage = () => {
+        console.log('page handling clicked')
+        console.log('totalPages >>> ', totalPages)
+        console.log('page >>> ', page)
         if (page < totalPages) {
+            console.log('came inside if')
             setPage(page + 1);
             fetchProductsFiltered();
         }
@@ -116,22 +120,37 @@ const ProductListingPage = () => {
             });
     };
 
-    const toggleWishlist = (productId, e) => {
+    const toggleWishlist = async (productId, e) => {
         e.stopPropagation();
-        if (wishlist.includes(productId)) {
-            setWishlist(wishlist.filter(id => id !== productId));
-            toast.info('Removed from wishlist', {
-                position: "top-right",
-                autoClose: 1500,
-            });
-        } else {
-            setWishlist([...wishlist, productId]);
-            toast.success('Added to wishlist', {
+    
+        const userId = localStorage.getItem('userId');
+    
+        try {
+            const res = await toggleWishlistItem(userId, productId); // API call
+            const updatedWishlist = res.data.wishlist.products;
+    
+            setWishlist(updatedWishlist);
+    
+            if (updatedWishlist.includes(productId)) {
+                toast.success('Added to wishlist', {
+                    position: "top-right",
+                    autoClose: 1500,
+                });
+            } else {
+                toast.info('Removed from wishlist', {
+                    position: "top-right",
+                    autoClose: 1500,
+                });
+            }
+        } catch (error) {
+            console.error('Failed to toggle wishlist:', error);
+            toast.error('Something went wrong!', {
                 position: "top-right",
                 autoClose: 1500,
             });
         }
     };
+    
 
     useEffect(() => {
         searchProductsFiltered();
@@ -139,9 +158,22 @@ const ProductListingPage = () => {
     }, [searchTerm]);
 
     useEffect(() => {
-        const uniqueCategories = products?.length ? [...new Set(products?.map(product => product?.category))] : [];
+        if (!products?.length) return;
+      
+        const categoryMap = new Map();
+      
+        products.forEach(product => {
+          const cat = product.category;
+          if (!categoryMap.has(cat._id)) {
+            categoryMap.set(cat._id, cat); // store category object keyed by its _id
+          }
+        });
+      
+        const uniqueCategories = Array.from(categoryMap.values());
+      
         setCategories(uniqueCategories);
-    }, [products]);
+      }, [products]);
+      
 
     const searchFilters = () => {
         fetchOptions()
@@ -295,7 +327,7 @@ const ProductListingPage = () => {
 
                                         {/* Wishlist Button */}
                                         <button 
-                                            onClick={(e) => toggleWishlist(product.id, e)}
+                                            onClick={(e) => toggleWishlist(product._id, e)}
                                             className="absolute top-3 right-3 z-10 p-2 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all"
                                         >
                                             {wishlist.includes(product.id) ? (

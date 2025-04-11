@@ -1,88 +1,139 @@
-import { useState } from 'react';
-import { FiHeart, FiShoppingCart, FiTrash2, FiChevronRight, FiShare2, FiX, FiStar } from 'react-icons/fi';
+import { useEffect, useState } from "react";
+import {
+  FiHeart,
+  FiShoppingCart,
+  FiTrash2,
+  FiChevronRight,
+  FiShare2,
+  FiX,
+  FiStar,
+} from "react-icons/fi";
+import { toast } from "react-toastify";
+import {
+  addToCart,
+  removeFromWishlist,
+  toggleWishlistItem,
+  getWishlist,
+} from "../../services/api";
 
 const WishlistPage = () => {
   // Sample wishlist data - replace with your actual data
   const [wishlistItems, setWishlistItems] = useState([
     {
       id: 1,
-      name: 'Wireless Noise Cancelling Headphones',
+      name: "Wireless Noise Cancelling Headphones",
       price: 249.99,
       originalPrice: 299.99,
-      image: 'https://via.placeholder.com/300?text=Headphones',
+      image: "https://via.placeholder.com/300?text=Headphones",
       rating: 4.7,
-      brand: 'SoundMaster',
+      brand: "SoundMaster",
       inStock: true,
-      color: 'Black',
-      savedForLater: false
+      color: "Black",
+      savedForLater: false,
     },
     {
       id: 2,
       name: 'Ultra HD Smart TV 55"',
       price: 799.99,
       originalPrice: 899.99,
-      image: 'https://via.placeholder.com/300?text=Smart+TV',
+      image: "https://via.placeholder.com/300?text=Smart+TV",
       rating: 4.8,
-      brand: 'VisionPlus',
+      brand: "VisionPlus",
       inStock: false,
-      color: 'Black',
-      savedForLater: true
+      color: "Black",
+      savedForLater: true,
     },
     {
       id: 3,
-      name: 'Professional DSLR Camera',
+      name: "Professional DSLR Camera",
       price: 1299.99,
       originalPrice: 1499.99,
-      image: 'https://via.placeholder.com/300?text=DSLR+Camera',
+      image: "https://via.placeholder.com/300?text=DSLR+Camera",
       rating: 4.9,
-      brand: 'PhotoPro',
+      brand: "PhotoPro",
       inStock: true,
-      color: 'Black',
-      savedForLater: false
+      color: "Black",
+      savedForLater: false,
     },
     {
       id: 4,
-      name: 'Wireless Charging Stand',
+      name: "Wireless Charging Stand",
       price: 39.99,
       originalPrice: 49.99,
-      image: 'https://via.placeholder.com/300?text=Wireless+Charger',
+      image: "https://via.placeholder.com/300?text=Wireless+Charger",
       rating: 4.3,
-      brand: 'ChargeIt',
+      brand: "ChargeIt",
       inStock: true,
-      color: 'White',
-      savedForLater: false
+      color: "White",
+      savedForLater: false,
     },
     {
       id: 5,
-      name: 'Smart Fitness Watch',
+      name: "Smart Fitness Watch",
       price: 199.99,
       originalPrice: 249.99,
-      image: 'https://via.placeholder.com/300?text=Fitness+Watch',
+      image: "https://via.placeholder.com/300?text=Fitness+Watch",
       rating: 4.6,
-      brand: 'FitGear',
+      brand: "FitGear",
       inStock: true,
-      color: 'Blue',
-      savedForLater: false
-    }
+      color: "Blue",
+      savedForLater: false,
+    },
   ]);
 
-  const [activeTab, setActiveTab] = useState('wishlist');
+  const [activeTab, setActiveTab] = useState("wishlist");
   const [showShareModal, setShowShareModal] = useState(false);
-  const [shareLink, setShareLink] = useState('');
+  const [shareLink, setShareLink] = useState("");
 
-  const removeFromWishlist = (id) => {
-    setWishlistItems(wishlistItems.filter(item => item.id !== id));
+  const handleRemoveFromWishlist = async (id) => {
+    console.log('function called')
+    const userId = localStorage.getItem("userId");
+    await removeFromWishlist(userId, id);
+    setWishlistItems(wishlistItems.filter((item) => item.id !== id));
+    fetchWishlist();
   };
 
-  const toggleSaveForLater = (id) => {
-    setWishlistItems(wishlistItems.map(item => 
-      item.id === id ? { ...item, savedForLater: !item.savedForLater } : item
-    ));
+  const toggleSaveForLater = async (id) => {
+    const userId = localStorage.getItem("userId");
+    await toggleWishlistItem(userId, id);
+    setWishlistItems(
+      wishlistItems.map((item) =>
+        item.id === id ? { ...item, savedForLater: !item.savedForLater } : item
+      )
+    );
   };
 
-  const moveAllToCart = () => {
+  const fetchWishlist = async () => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      getWishlist(userId).then((response) => {
+        console.log(response.data.data);
+        setWishlistItems(response.data.data);
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
+  const moveAllToCart = async () => {
     // In a real app, you would handle the move to cart logic here
-    alert('Selected items moved to cart!');
+    try {
+      console.log("products >>> ", filteredItems);
+      const addPromises = filteredItems.map(({ _id, quantity }) =>
+        addToCart(_id, quantity).catch((error) => {
+          console.error(`Failed to add product ${_id} to cart:`, error);
+        })
+      );
+
+      await Promise.all(addPromises);
+      toast.success("All items moved to cart successfully!");
+      fetchWishlist();
+    } catch (error) {
+      toast.error("Failed to move all items to cart:", error);
+      console.error("Failed to move all items to cart:", error);
+    }
   };
 
   const shareWishlist = () => {
@@ -93,11 +144,11 @@ const WishlistPage = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareLink);
-    alert('Link copied to clipboard!');
+    alert("Link copied to clipboard!");
   };
 
-  const filteredItems = wishlistItems.filter(item => 
-    activeTab === 'wishlist' ? !item.savedForLater : item.savedForLater
+  const filteredItems = wishlistItems.filter((item) =>
+    activeTab === "wishlist" ? !item.savedForLater : item.savedForLater
   );
 
   return (
@@ -109,7 +160,8 @@ const WishlistPage = () => {
             Your Wishlist
           </h1>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-            {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'} saved for later
+            {wishlistItems.length}{" "}
+            {wishlistItems.length === 1 ? "item" : "items"} saved for later
           </p>
         </div>
 
@@ -118,25 +170,27 @@ const WishlistPage = () => {
           <div className="flex border-b border-gray-200 w-full sm:w-auto">
             <button
               className={`py-4 px-6 font-medium text-sm flex items-center ${
-                activeTab === 'wishlist'
-                  ? 'border-b-2 border-indigo-500 text-indigo-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "wishlist"
+                  ? "border-b-2 border-indigo-500 text-indigo-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
-              onClick={() => setActiveTab('wishlist')}
+              onClick={() => setActiveTab("wishlist")}
             >
               <FiHeart className="mr-2" />
-              Wishlist ({wishlistItems.filter(item => !item.savedForLater).length})
+              Wishlist (
+              {wishlistItems.filter((item) => !item.savedForLater).length})
             </button>
             <button
               className={`py-4 px-6 font-medium text-sm flex items-center ${
-                activeTab === 'saved'
-                  ? 'border-b-2 border-indigo-500 text-indigo-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "saved"
+                  ? "border-b-2 border-indigo-500 text-indigo-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
-              onClick={() => setActiveTab('saved')}
+              onClick={() => setActiveTab("saved")}
             >
               <FiChevronRight className="mr-2" />
-              Saved for Later ({wishlistItems.filter(item => item.savedForLater).length})
+              Saved for Later (
+              {wishlistItems.filter((item) => item.savedForLater).length})
             </button>
           </div>
 
@@ -148,7 +202,7 @@ const WishlistPage = () => {
               <FiShare2 className="mr-2" />
               Share
             </button>
-            {activeTab === 'wishlist' && (
+            {activeTab === "wishlist" && (
               <button
                 onClick={moveAllToCart}
                 className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -170,7 +224,7 @@ const WishlistPage = () => {
                     <div className="flex-shrink-0 mb-4 sm:mb-0 sm:mr-6">
                       <img
                         className="h-40 w-40 object-contain rounded-lg"
-                        src={item.image}
+                        src={item.images?.[0]}
                         alt={item.name}
                       />
                     </div>
@@ -180,10 +234,10 @@ const WishlistPage = () => {
                       <div className="flex justify-between">
                         <div>
                           <h3 className="text-lg font-medium text-gray-900 mb-1">
-                            {item.name}
+                            {item.title}
                           </h3>
                           <p className="text-sm text-gray-500 mb-2">
-                            Brand: {item.brand} | Color: {item.color}
+                            Brand: {item.brand} | Color: {item.color || null}
                           </p>
                           <div className="flex items-center mb-3">
                             {[...Array(5)].map((_, i) => (
@@ -191,13 +245,13 @@ const WishlistPage = () => {
                                 key={i}
                                 className={`h-4 w-4 ${
                                   i < Math.floor(item.rating)
-                                    ? 'text-yellow-400 fill-current'
-                                    : 'text-gray-300'
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
                                 }`}
                               />
                             ))}
                             <span className="ml-1 text-sm text-gray-500">
-                              ({item.rating})
+                              {item.rating || 0}
                             </span>
                           </div>
                         </div>
@@ -212,10 +266,12 @@ const WishlistPage = () => {
                               ${item.originalPrice.toFixed(2)}
                             </p>
                           )}
-                          <p className={`text-sm mt-1 ${
-                            item.inStock ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {item.inStock ? 'In Stock' : 'Out of Stock'}
+                          <p
+                            className={`text-sm mt-1 ${
+                              item.stock > 0 ? "text-green-600" : "text-red-600"
+                            }`}
+                          >
+                            {item.stock > 0 ? "In Stock" : "Out of Stock"}
                           </p>
                         </div>
                       </div>
@@ -224,11 +280,11 @@ const WishlistPage = () => {
                       <div className="mt-4 flex flex-wrap gap-3">
                         <button
                           className={`flex items-center px-4 py-2 rounded-md text-sm font-medium ${
-                            item.inStock
-                              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                              : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                            item.stock > 0
+                              ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                              : "bg-gray-200 text-gray-700 cursor-not-allowed"
                           }`}
-                          disabled={!item.inStock}
+                          disabled={item.stock <= 0}
                         >
                           <FiShoppingCart className="mr-2" />
                           Add to Cart
@@ -252,7 +308,7 @@ const WishlistPage = () => {
                         </button>
 
                         <button
-                          onClick={() => removeFromWishlist(item.id)}
+                          onClick={() => handleRemoveFromWishlist(item._id)}
                           className="flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-red-600 hover:text-red-800"
                         >
                           <FiTrash2 className="mr-2" />
@@ -269,23 +325,25 @@ const WishlistPage = () => {
           <div className="bg-white shadow overflow-hidden sm:rounded-lg p-12 text-center">
             <FiHeart className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">
-              {activeTab === 'wishlist' 
-                ? 'Your wishlist is empty' 
-                : 'No items saved for later'}
+              {activeTab === "wishlist"
+                ? "Your wishlist is empty"
+                : "No items saved for later"}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {activeTab === 'wishlist'
-                ? 'Start adding items you love to your wishlist'
-                : 'Save items for later to find them here'}
+              {activeTab === "wishlist"
+                ? "Start adding items you love to your wishlist"
+                : "Save items for later to find them here"}
             </p>
             <div className="mt-6">
               <button
-                onClick={() => setActiveTab(activeTab === 'wishlist' ? 'saved' : 'wishlist')}
+                onClick={() =>
+                  setActiveTab(activeTab === "wishlist" ? "saved" : "wishlist")
+                }
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
               >
-                {activeTab === 'wishlist' 
-                  ? 'View Saved for Later items' 
-                  : 'View Wishlist items'}
+                {activeTab === "wishlist"
+                  ? "View Saved for Later items"
+                  : "View Wishlist items"}
                 <FiChevronRight className="ml-2" />
               </button>
             </div>
@@ -300,17 +358,20 @@ const WishlistPage = () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => {
-                const recItem = wishlistItems.find(item => item.id === i) || {
+                const recItem = wishlistItems.find((item) => item.id === i) || {
                   id: i,
                   name: `Recommended Product ${i}`,
                   price: 99.99 + i * 20,
                   image: `https://via.placeholder.com/300?text=Rec+${i}`,
                   rating: 4.0 + i * 0.2,
-                  brand: 'BrandX',
-                  inStock: true
+                  brand: "BrandX",
+                  inStock: true,
                 };
                 return (
-                  <div key={i} className="bg-white rounded-lg shadow overflow-hidden">
+                  <div
+                    key={i}
+                    className="bg-white rounded-lg shadow overflow-hidden"
+                  >
                     <div className="p-4">
                       <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg">
                         <img
@@ -328,8 +389,8 @@ const WishlistPage = () => {
                             key={i}
                             className={`h-4 w-4 ${
                               i < Math.floor(recItem.rating)
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
+                                ? "text-yellow-400 fill-current"
+                                : "text-gray-300"
                             }`}
                           />
                         ))}

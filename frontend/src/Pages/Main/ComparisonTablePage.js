@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiX, FiChevronLeft, FiChevronRight, FiStar, FiShoppingCart } from 'react-icons/fi';
+import { fetchProductsFiltered } from '../../services/api';
 
 const ComparisonTable = () => {
   // Sample product data - replace with your actual data
@@ -70,18 +71,36 @@ const ComparisonTable = () => {
 
   // Filter products based on search term
   useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredProducts(products.filter(p => !selectedProducts.includes(p.id)));
-    } else {
-      setFilteredProducts(
-        products.filter(
-          p =>
-            !selectedProducts.includes(p.id) &&
-            p.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    }
-  }, [searchTerm, products, selectedProducts]);
+    const fetchFilteredProducts = async () => {
+      if (searchTerm.trim() === '') {
+        // No search — show local products not selected
+        setFilteredProducts(products.filter(p => !selectedProducts.includes(p.id)));
+      } else {
+        try {
+          const response = await fetchProductsFiltered(searchTerm);
+  
+          if (response?.status === 200 && response?.data?.products) {
+            // Filter out selected ones (assuming response.data.products has same structure)
+            const filtered = response.data.products.filter(
+              p => !selectedProducts.includes(p.id)
+            );
+            setFilteredProducts(filtered);
+          } else {
+            console.warn("Unexpected response format:", response);
+            setFilteredProducts([]);
+          }
+        } catch (error) {
+          console.error("Error fetching filtered products:", error);
+          setFilteredProducts([]);
+        }
+      }
+    };
+  
+    fetchFilteredProducts();
+  }, [searchTerm, selectedProducts, products]);
+  
+  
+  
 
   // Feature list for comparison
   const features = [
@@ -96,20 +115,31 @@ const ComparisonTable = () => {
   ];
 
   const addProductToComparison = (productId) => {
-    if (selectedProducts.length < 4) {
-      setSelectedProducts([...selectedProducts, productId]);
+    console.log('product id to compare >>> ', productId)
+    const productToAdd = filteredProducts.find(p => p._id === productId);
+    console.log('product to add >>> ', productToAdd)  
+    if (selectedProducts.length < 4 && productToAdd) {
+      // If product is not already in the products list, add it
+      if (!products.some(p => p.id === productId)) {
+        setProducts(prev => [...prev, productToAdd]);
+      }
+  
+      setSelectedProducts(prev => [...prev, productId]);
       setShowAddProductModal(false);
       setSearchTerm('');
     }
-  };
 
+    console.log('selected products >>> ', selectedProducts);
+  };
+  
   const removeProductFromComparison = (productId) => {
     setSelectedProducts(selectedProducts.filter(id => id !== productId));
   };
 
   const getProductById = (id) => {
-    return products.find(p => p.id === id) || null;
+    return products.find(p => p._id === id) || filteredProducts.find(p => p._id === id) || null;
   };
+    
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -154,13 +184,13 @@ const ComparisonTable = () => {
                           </button>
                           <div className="h-40 w-40 flex items-center justify-center mb-3">
                             <img
-                              src={product.image}
+                              src={product.images?.[0]}
                               alt={product.name}
                               className="max-h-full max-w-full object-contain"
                             />
                           </div>
                           <h3 className="text-lg font-medium text-gray-900 mb-1">
-                            {product.name}
+                            {product.title}
                           </h3>
                           <div className="flex items-center mb-2">
                             {[...Array(5)].map((_, i) => (
@@ -371,19 +401,19 @@ const ComparisonTable = () => {
                             <div
                               key={product.id}
                               className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                              onClick={() => addProductToComparison(product.id)}
+                              onClick={() => addProductToComparison(product._id)}
                             >
                               <div className="flex items-start">
                                 <div className="flex-shrink-0 h-20 w-20">
                                   <img
-                                    src={product.image}
-                                    alt={product.name}
+                                    src={product.images?.[0]}
+                                    alt={product.title}
                                     className="h-full w-full object-contain"
                                   />
                                 </div>
                                 <div className="ml-4">
                                   <h4 className="text-sm font-medium text-gray-900">
-                                    {product.name}
+                                    {product.title}
                                   </h4>
                                   <p className="text-sm text-gray-500">
                                     {product.brand}

@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { adminVerifyToken, userVerifyToken } from '../services/api';
 import LoadingPage from '../Pages/Loading/LoadingPage';
+import { toast } from 'react-toastify';
 
 export const SearchContext = createContext();
 
@@ -27,6 +28,7 @@ const ContextProvider = ({ children }) => {
             setIsAuthenticated(true);
             setIsAdmin(false);
           } else {
+            toast.error(userResponse?.data?.message);
             setIsAuthenticated(false);
             setIsAdmin(false);
           }

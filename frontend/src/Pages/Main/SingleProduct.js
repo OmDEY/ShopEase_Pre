@@ -13,7 +13,8 @@ import BigCard from "../../Components/Main/Common/BigCard";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { fetchProductById, submitProductReview } from "../../services/api";
+import { fetchProductById, removeFromWishlist, submitProductReview, checkWishlist, addToWishlist } from "../../services/api";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 // Dummy product data
 const DummyProduct = {
@@ -96,6 +97,7 @@ const relatedProducts = [
 
 const SingleProductDisplay = () => {
   const [product, setProduct] = useState(DummyProduct);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
@@ -122,7 +124,45 @@ const SingleProductDisplay = () => {
     console.log("productId", productId);
     console.log("searching.....", productId);
     fetchProduct();
+    // Replace with your actual API call to check wishlist
+    const fetchWishlistStatus = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const isInWishlist = await checkWishlist(userId, productId);
+        setIsInWishlist(isInWishlist);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (productId) fetchWishlistStatus();
   }, [productId]);
+
+  const toggleWishlistItem = async () => {
+    try {
+      if (isInWishlist) {
+        let userId = localStorage.getItem('userId')
+        await removeFromWishlist(userId, productId)
+        setIsInWishlist(false);
+        toast.info('Removed from wishlist', {
+          position: "top-right",
+          autoClose: 1500,
+        });
+      } else {
+        // Add to wishlist
+        let userId = localStorage.getItem('userId')
+        await addToWishlist(userId, productId)
+        setIsInWishlist(true);
+        toast.success('Added to wishlist', {
+          position: "top-right",
+          autoClose: 1500,
+        });
+      }
+  
+      setIsInWishlist(!isInWishlist);
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+    }
+};
 
   const fetchProduct = async () => {
     fetchProductById(productId)
@@ -202,6 +242,21 @@ const SingleProductDisplay = () => {
 
           {/* Product Details */}
           <div className="lg:ml-8 lg:w-1/2">
+            <div className="mb-4 flex items-center space-x-4">
+              <button
+                onClick={toggleWishlistItem}
+                className="text-red-500 hover:text-red-700 text-2xl"
+                title={
+                  isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"
+                }
+              >
+                {isInWishlist ? <FaHeart /> : <FaRegHeart />}
+              </button>
+              <span className="text-sm text-gray-600">
+                {isInWishlist ? "In your wishlist" : "Add to wishlist"}
+              </span>
+            </div>
+
             <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
             <p className="text-gray-700 mb-4">{product.description}</p>
             <p className="text-gray-700 font-semibold mb-4">
