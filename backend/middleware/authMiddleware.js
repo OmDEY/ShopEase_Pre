@@ -33,7 +33,7 @@ async function authMiddleware(req, res, next) {
     // Proceed to the next middleware or route handler
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+    res.status(401).json({ message: 'Session Expired Please Login Again' });
   }
 }
 

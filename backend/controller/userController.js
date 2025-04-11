@@ -33,7 +33,7 @@ const verifyToken = async (req, res) => {
             user
         });
     } catch (error) {
-        res.status(401).json({ msg: 'Token is not valid' });
+        res.status(401).json({ msg: 'Session Expired Please Login Again' });
     }
 };
 

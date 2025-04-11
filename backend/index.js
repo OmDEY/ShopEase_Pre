@@ -6,12 +6,17 @@ const cartRoutes = require('./routes/cartRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const homePageCategoryDataUploads = require('./routes/homePageCategoryDataUploads');
 const connect = require('./config/db');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 const cors = require('cors');
 const app = express();
+const bodyParser = require('body-parser');
+const paymentRoutes = require('./routes/paymentRoutes');
 const port = 4000;
 
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // MongoDB connection
 connect().then(() => {
@@ -22,6 +27,8 @@ connect().then(() => {
     app.use('/api/cart', cartRoutes);
     app.use('/api/homePageCategoryDataUploads', homePageCategoryDataUploads)
     app.use('/api/admin', adminRoutes);
+    app.use('/api/wishlist', wishlistRoutes);
+    app.use("/api/payment", paymentRoutes);
 
     app.get('/', async (req, res) => {
         res.send('Hello World');

@@ -58,6 +58,8 @@ const getCart = async (req, res) => {
         // Assuming you get the userId from req.user (e.g., via JWT middleware)
         const userId = req.user._id;
 
+        console.log('userId >>>> ', userId);
+
         // Find the cart for the user, and populate product details in the items array
         const cart = await Cart.findOne({ user: userId })
             .populate({

@@ -3,7 +3,7 @@ module.exports = {
     "Electronics & Gadgets": [
       {
         label: "Brand",
-        options: ["Apple", "Samsung", "Google", "Sony", "LG"],
+        options: ["Apple", "Samsung", "Google", "Sony", "LG", "ASUS"],
         type: "checkbox", // multiple selection (checkboxes)
       },
       {

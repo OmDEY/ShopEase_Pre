@@ -251,7 +251,9 @@ const fetchProductsOnFilter = async (req, res) => {
     let filters = {};
 
     // Extract query parameters
-    const { category, brand, colors, priceRange, searchTerm, ...otherFilters } = req.query;
+    const { category, Brand, colors, priceRange, searchTerm, ...otherFilters } = req.query;
+
+    console.log('query >>> ', req.query)
 
     // Category filter
     if (category) {
@@ -259,9 +261,12 @@ const fetchProductsOnFilter = async (req, res) => {
     }
 
     // Brand filter
-    if (brand) {
-      filters.brand = brand;
-    }
+    if (Brand) {
+      filters.$or = [
+        { brand: new RegExp(`^${Brand}$`, "i") },
+        { 'categoryDetails.Brand': new RegExp(`^${Brand}$`, "i") }
+      ];
+    }    
 
     // Colors filter (Multiple values comma-separated)
     if (colors) {
@@ -275,9 +280,14 @@ const fetchProductsOnFilter = async (req, res) => {
       filters.price = { $gte: min, $lte: max };
     }
 
+
+
     // Dynamic filters inside categoryDetails
     Object.keys(otherFilters).forEach((key) => {
-      filters[`categoryDetails.${key}`] = otherFilters[key];
+      if(key == "Warranty"){
+        otherFilters[key] = otherFilters[key].split(" ")[0]
+      }
+      filters[`categoryDetails.${key.toLowerCase()}`] = otherFilters[key];
     });
 
     if (searchTerm) {
