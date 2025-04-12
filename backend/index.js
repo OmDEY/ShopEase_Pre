@@ -11,6 +11,10 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
 const paymentRoutes = require('./routes/paymentRoutes');
+const newA = require('./routes/newArrivalsRoute');
+const bestSellersRoute = require('./routes/bestSellersRoute');
+const discountDealsRoute = require('./routes/discountDealsRoute');
+const dealOfTheDayRoutes = require('./routes/dealOfTheDayRoutes');
 const port = 4000;
 
 app.use(express.json());
@@ -29,6 +33,10 @@ connect().then(() => {
     app.use('/api/admin', adminRoutes);
     app.use('/api/wishlist', wishlistRoutes);
     app.use("/api/payment", paymentRoutes);
+    app.use('/api/new-arrivals', newA);
+    app.use('/api/best-sellers', bestSellersRoute);
+    app.use('/api/discount-deals', discountDealsRoute);
+    app.use('/api/deals-of-the-day', dealOfTheDayRoutes);
 
     app.get('/', async (req, res) => {
         res.send('Hello World');

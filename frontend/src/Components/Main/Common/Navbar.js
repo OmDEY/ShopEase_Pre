@@ -205,43 +205,52 @@ const Navbar = () => {
       name: "Shop",
       link: "/products",
       dropdown: [
-        "New Arrivals",
-        "Best Sellers",
-        "Discount Deals",
-        "Featured Products",
+        { label: "New Arrivals", link: "/new-arrivals" },
+        { label: "Best Sellers", link: "/best-sellers" },
+        { label: "Discount Deals", link: "/discount-deals" },
+        { label: "Featured Products", link: "/featured-products" },
       ],
     },
     {
       name: "Deals",
       link: "/deals",
       dropdown: [
-        "Today's Deals",
-        "Weekend Specials",
-        "Clearance Sale",
-        "Bundle Offers",
+        { label: "Today's Deals", link: "/deals-of-the-day" },
+        { label: "Weekend Specials", link: "/weekend-specials" },
+        { label: "Clearance Sale", link: "/clearance-sale" },
+        { label: "Bundle Offers", link: "/bundle-offers" },
       ],
     },
     {
       name: "Pages",
       dropdown: [
-        "About Us",
-        "Contact Us",
-        "FAQ",
-        "Privacy Policy",
-        "Terms & Conditions",
+        { label: "About Us", link: "/about" },
+        { label: "Contact Us", link: "/contact" },
+        { label: "FAQ", link: "/faq" },
+        { label: "Privacy Policy", link: "/privacy-policy" },
+        { label: "Terms & Conditions", link: "/terms-conditions" },
       ],
     },
     {
       name: "Blog",
       link: "/blog",
-      dropdown: ["Latest Posts", "Product Reviews", "Buying Guides"],
+      dropdown: [
+        { label: "Latest Posts", link: "/blog/latest-posts" },
+        { label: "Product Reviews", link: "/blog/product-reviews" },
+        { label: "Buying Guides", link: "/blog/buying-guides" },
+      ],
     },
     {
       name: "Vendors",
       link: "/vendors",
-      dropdown: ["Become a Vendor", "Vendor Directory", "Vendor Dashboard"],
+      dropdown: [
+        { label: "Become a Vendor", link: "/vendors/become" },
+        { label: "Vendor Directory", link: "/vendors/directory" },
+        { label: "Vendor Dashboard", link: "/vendors/dashboard" },
+      ],
     },
   ];
+  
 
   return (
     <div>
@@ -560,11 +569,11 @@ const Navbar = () => {
                       {item.dropdown.map((subItem, subIndex) => (
                         <Link
                           key={subIndex}
-                          to={item.link ? `${item.link}/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/${item.name.toLowerCase()}/${subItem.toLowerCase().replace(/\s+/g, '-')}`}
+                          to={subItem.link}
                           className="block px-4 py-2 hover:bg-gray-100"
                           onClick={() => setActiveDropdown(null)}
                         >
-                          {subItem}
+                          {subItem.label}
                         </Link>
                       ))}
                     </div>

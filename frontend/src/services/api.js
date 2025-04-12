@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api/';
+// const API_URL = 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -215,7 +215,26 @@ const addToWishlist = async (userId, productId) => {
     const response = await axios.post(`${API_URL}payment/verify-payment`, data);
     return response;
   };  
-  
+
+  const fetchNewArrivalProducts = async (page, limit) => {
+    const response = await axios.get(`${API_URL}new-arrivals/fetch-new-arrivals?page=${page}&limit=${limit}`);
+    return response.data;
+  };
+
+  const fetchBestSellers = async (activeTab) => {
+    const response = await axios.get(`${API_URL}best-sellers/fetch-best-sellers?category=${activeTab}`);
+    return response.data;
+  };
+
+  const fetchDiscountDeals = async () => {
+    const response = await axios.get(`${API_URL}discount-deals/fetch-discount-deals`);
+    return response.data;
+  };
+
+  const fetchDealsOfTheDay = async () => {
+    const response = await axios.get(`${API_URL}deals-of-the-day/deals-of-the-day`);
+    return response.data;
+  };
 
 export {
     fetchUserById,
@@ -250,4 +269,8 @@ export {
     checkWishlist,
     createOrder,
     verifyPayment,
+    fetchNewArrivalProducts,
+    fetchBestSellers,
+    fetchDiscountDeals,
+    fetchDealsOfTheDay
 };

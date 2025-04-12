@@ -17,6 +17,10 @@ import ComparisonTablePage from '../Pages/Main/ComparisonTablePage';
 import WishListPage from '../Pages/Main/WishListPage';
 import SuccessPage from '../Pages/Main/SuccessPage';
 import FailedPage from '../Pages/Main/FailedPage';
+import NewArraivalsPage from '../Pages/Main/NewArraivalsPage';
+import BestSellersPage from '../Pages/Main/BestSellersPage';
+import DiscountDealsPage from '../Pages/Main/DiscountDealsPage';
+import DealsOfTheDay from '../Pages/Main/DealsOfTheDay';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -37,6 +41,10 @@ const MainRoutes = () => {
       <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
       <Route path="/payment-success" element={<ProtectedRoute><SuccessPage /></ProtectedRoute>} />
       <Route path="/payment-failed" element={<ProtectedRoute><FailedPage /></ProtectedRoute>} />
+      <Route path="/new-arrivals" element={<ProtectedRoute><NewArraivalsPage /></ProtectedRoute>} />
+      <Route path="/best-sellers" element={<ProtectedRoute><BestSellersPage /></ProtectedRoute>} />
+      <Route path="/discount-deals" element={<ProtectedRoute><DiscountDealsPage /></ProtectedRoute>} />
+      <Route path="/deals-of-the-day" element={<ProtectedRoute><DealsOfTheDay /></ProtectedRoute>} />
     </Routes>
   );
 };
