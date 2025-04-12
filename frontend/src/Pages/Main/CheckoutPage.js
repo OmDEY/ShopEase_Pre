@@ -26,9 +26,10 @@ const CheckoutPage = () => {
 
   const handleRazorpayPayment = async () => {
     try {
-      const { data } = await createOrder(calculateTotal());
 
-      console.log('process.env.REACT_APP_RAZORPAY_KEY_ID >>>> ', process.env.REACT_APP_RAZORPAY_KEY_ID)
+      const userId = localStorage.getItem('userId')
+
+      const { data } = await createOrder(calculateTotal());
 
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
@@ -39,7 +40,7 @@ const CheckoutPage = () => {
         image: "/logo.png",
         order_id: data.order.id,
         handler: async function (response) {
-          const res = await verifyPayment(response);
+          const res = await verifyPayment(response, userId, cartItems, address, calculateTotal());
           if (res.data.success) {
             try {
               await Promise.all(cartItems.map(cartItem => removeItemFromCart(cartItem?.product?._id)));

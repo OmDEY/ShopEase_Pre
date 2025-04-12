@@ -15,6 +15,13 @@ const newA = require('./routes/newArrivalsRoute');
 const bestSellersRoute = require('./routes/bestSellersRoute');
 const discountDealsRoute = require('./routes/discountDealsRoute');
 const dealOfTheDayRoutes = require('./routes/dealOfTheDayRoutes');
+const featuredProductsRoutes = require('./routes/featuredProductsRoutes');
+const weekendSpecialProductsRoutes = require('./routes/weekendSpecialProductsRoutes');
+const clearanceSaleRoute = require('./routes/clearanceSaleRoute');
+const bundleOffersRoute = require('./routes/bundleOffersRoute');
+const orderRoutes = require('./routes/orderRoutes');
+
+
 const port = 4000;
 
 app.use(express.json());
@@ -37,6 +44,11 @@ connect().then(() => {
     app.use('/api/best-sellers', bestSellersRoute);
     app.use('/api/discount-deals', discountDealsRoute);
     app.use('/api/deals-of-the-day', dealOfTheDayRoutes);
+    app.use('/api/featured-products', featuredProductsRoutes);
+    app.use('/api/weekend-specials', weekendSpecialProductsRoutes);
+    app.use('/api/clearance-sale', clearanceSaleRoute);
+    app.use('/api/bundle-offers', bundleOffersRoute);
+    app.use('/api/orders', orderRoutes);
 
     app.get('/', async (req, res) => {
         res.send('Hello World');

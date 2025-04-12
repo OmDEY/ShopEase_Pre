@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const VariantSchema = new mongoose.Schema({
   variantName: { type: String, required: true },
   variantValue: { type: String, required: true },
-  priceAdjustment: { type: Number, default: 0 }, // Optional price adjustment for variants
+  priceAdjustment: { type: Number, default: 0 },
 });
 
 const AdditionalInfoSchema = new mongoose.Schema({
   description: { type: String, required: true },
-  images: [{ type: String }], // Array of image URLs
+  images: [{ type: String }],
 });
 
 const ProductSchema = new mongoose.Schema(
@@ -25,15 +25,27 @@ const ProductSchema = new mongoose.Schema(
     stock: { type: Number, required: true },
     brand: { type: String, required: true, index: true },
     colors: [{ type: String }],
-    categoryDetails: { type: Object, default: {} }, // Object containing all the details for the category
+    categoryDetails: { type: Object, default: {} },
     variants: { type: [VariantSchema], default: [] },
-    images: [{ type: String }], // Array of image URLs
+    images: [{ type: String }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "UserReview" }],
-    additionalInfo: { type: [AdditionalInfoSchema], default: [] }, // <-- Fix here: make it an array of objects
-    salesCount: { type: Number, default: 0 }, // <-- Add this
+    additionalInfo: { type: [AdditionalInfoSchema], default: [] },
+    salesCount: { type: Number, default: 0 },
     discountPercentage: { type: Number, default: 0 },
-    dealEndsAt: { type: Date, required: false},
-    createdAt: { type: Date, default: Date.now,},
+    dealEndsAt: { type: Date, required: false },
+    createdAt: { type: Date, default: Date.now },
+    isFeatured: { type: Boolean, default: false },
+    averageRating: { type: Number, default: 0 },
+    clearanceLevel: { type: String, enum: ['limited', 'last-chance', 'final'], default: null },
+
+    // 👇 New fields for Bundle Offers
+    isBundleOffer: { type: Boolean, default: false },
+    bundleDetails: {
+      bundleName: { type: String },
+      bundleDescription: { type: String },
+      bundlePrice: { type: Number },
+      includedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    },
   },
   { timestamps: true }
 );

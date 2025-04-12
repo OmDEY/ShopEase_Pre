@@ -21,6 +21,10 @@ import NewArraivalsPage from '../Pages/Main/NewArraivalsPage';
 import BestSellersPage from '../Pages/Main/BestSellersPage';
 import DiscountDealsPage from '../Pages/Main/DiscountDealsPage';
 import DealsOfTheDay from '../Pages/Main/DealsOfTheDay';
+import FeaturedPage from '../Pages/Main/FeaturedPage';
+import WeekendSpecialsPage from '../Pages/Main/WeekendSpecialsPage';
+import ClearanceSalePage from '../Pages/Main/ClearanceSalePage';
+import BundleOffersPage from '../Pages/Main/BundleOffersPage ';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -45,6 +49,10 @@ const MainRoutes = () => {
       <Route path="/best-sellers" element={<ProtectedRoute><BestSellersPage /></ProtectedRoute>} />
       <Route path="/discount-deals" element={<ProtectedRoute><DiscountDealsPage /></ProtectedRoute>} />
       <Route path="/deals-of-the-day" element={<ProtectedRoute><DealsOfTheDay /></ProtectedRoute>} />
+      <Route path="/featured-products" element={<ProtectedRoute><FeaturedPage /></ProtectedRoute>} />
+      <Route path="/weekend-specials" element={<ProtectedRoute><WeekendSpecialsPage /></ProtectedRoute>} />
+      <Route path="/clearance-sale" element={<ProtectedRoute><ClearanceSalePage /></ProtectedRoute>} />
+      <Route path="/bundle-offers" element={<ProtectedRoute><BundleOffersPage /></ProtectedRoute>} />
     </Routes>
   );
 };

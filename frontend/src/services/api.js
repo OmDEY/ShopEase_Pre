@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-// const API_URL = 'http://localhost:4000/api/';
+// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+const API_URL = 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -211,8 +211,8 @@ const addToWishlist = async (userId, productId) => {
     return response;
   };
 
-  const verifyPayment = async (data) => {
-    const response = await axios.post(`${API_URL}payment/verify-payment`, data);
+  const verifyPayment = async (data, userId, items, address, totalAmount) => {
+    const response = await axios.post(`${API_URL}payment/verify-payment`, { data, userId, items, address, totalAmount });
     return response;
   };  
 
@@ -233,6 +233,35 @@ const addToWishlist = async (userId, productId) => {
 
   const fetchDealsOfTheDay = async () => {
     const response = await axios.get(`${API_URL}deals-of-the-day/deals-of-the-day`);
+    return response.data;
+  };
+
+  const fetchFeaturedProducts = async () => {
+    const response = await axios.get(`${API_URL}featured-products/fetch-featured-products`);
+    return response.data;
+  };
+
+  const fetchWeekendSpecialProducts = async () => {
+    const response = await axios.get(`${API_URL}weekend-specials/weekend-specials`);
+    return response.data;
+  };
+
+  const fetchClearanceProducts = async () => {
+    const response = await axios.get(`${API_URL}clearance-sale/fetch-clearance-products`);
+    return response.data;
+  };
+
+  const fetchBundleOffers = async () => {
+    const response = await axios.get(`${API_URL}bundle-offers/fetch-bundle-offers`);
+    return response.data;
+  };
+
+  const fetchOrders = async () => {
+    const response = await axios.get(`${API_URL}orders/fetch-orders`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
     return response.data;
   };
 
@@ -272,5 +301,10 @@ export {
     fetchNewArrivalProducts,
     fetchBestSellers,
     fetchDiscountDeals,
-    fetchDealsOfTheDay
+    fetchDealsOfTheDay,
+    fetchFeaturedProducts,
+    fetchWeekendSpecialProducts,
+    fetchClearanceProducts,
+    fetchBundleOffers,
+    fetchOrders
 };
