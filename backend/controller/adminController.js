@@ -79,7 +79,7 @@ const loginAdmin = async (req, res) => {
         
         // Generate JWT token
         const token = jwt.sign({ adminId: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        res.status(200).json({ token, adminId: admin._id });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

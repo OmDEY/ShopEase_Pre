@@ -69,8 +69,10 @@ const AdminAuthPage = () => {
                 ? await adminLogin(formData.email, formData.password) // Pass arguments separately
                 : await adminRegister(formData);
 
+            console.log('login data >>>', response.data)
+
             localStorage.setItem('token', response.data.token);
-            localStorage.setItem('userId', response.data.userId);
+            localStorage.setItem('userId', response.data.adminId);
             setIsAdmin(true);
             toast.success(isLogin ? 'Logged in successfully' : 'Admin Signed Up successfully');
             navigate('/admin/adminDashboard');

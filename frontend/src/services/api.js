@@ -265,6 +265,24 @@ const addToWishlist = async (userId, productId) => {
     return response.data;
   };
 
+  const fetchAllOrders = async() => {
+    const response = await axios.get(`${API_URL}orders/fetch-all-orders`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  }
+
+  const changeOrderStatus = async (orderId, status) => {
+    const response = await axios.post(`${API_URL}orders/update-order-status/${orderId}`, { status }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  }
+
 export {
     fetchUserById,
     fetchHomePageBannerCarouselImages,
@@ -306,5 +324,7 @@ export {
     fetchWeekendSpecialProducts,
     fetchClearanceProducts,
     fetchBundleOffers,
-    fetchOrders
+    fetchOrders,
+    fetchAllOrders,
+    changeOrderStatus
 };

@@ -1,59 +1,52 @@
-import React, { useState } from 'react';
+// AdminOrdersTable.jsx
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaEdit, FaEnvelope, FaEye } from 'react-icons/fa';
 import AdminOrderModal from './AdminOrderModal';
-import AdminOrderDetailsModal from './AdminOrderDetailsModal'; // New modal for viewing details
-
-// Sample order data (you would fetch this from an API in a real project)
-const initialOrders = [
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    email: 'john@example.com', 
-    date: '2024-09-22', 
-    total: 250.75, 
-    status: 'Processing', 
-    items: [
-      { name: 'Product A', quantity: 2, price: 50 },
-      { name: 'Product B', quantity: 1, price: 150.75 }
-    ]
-  },
-  { 
-    id: 2, 
-    customer: 'Jane Smith', 
-    email: 'jane@example.com', 
-    date: '2024-09-23', 
-    total: 500.25, 
-    status: 'Shipped', 
-    items: [
-      { name: 'Product C', quantity: 3, price: 150 },
-      { name: 'Product D', quantity: 1, price: 50.25 }
-    ]
-  }
-];
+import AdminOrderDetailsModal from './AdminOrderDetailsModal';
+import { fetchAllOrders, changeOrderStatus } from '../../services/api';
+import { toast } from "react-toastify";
 
 const AdminOrdersTable = () => {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  // Function to open modal to edit order status
+  const fetchOrders = async () => {
+    try {
+      const response = await fetchAllOrders();
+      setOrders(response.orders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch orders from the backend
+    fetchOrders();
+  }, []);
+
   const openModal = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
-  // Function to open modal to view order details
   const openDetailsModal = (order) => {
     setSelectedOrder(order);
     setIsDetailsOpen(true);
   };
 
-  // Handle order status update
-  const updateOrderStatus = (updatedOrder) => {
-    setOrders(orders.map(order => order.id === updatedOrder.id ? updatedOrder : order));
-    setIsModalOpen(false);
+  const updateOrderStatus = async (updatedOrder) => {
+    changeOrderStatus(updatedOrder._id, updatedOrder.orderStatus)
+    .then(() => {
+      fetchOrders();
+      setIsModalOpen(false);
+      toast.success('Order status updated successfully');
+    })
+    .catch(error => {
+      console.error('Error updating order status:', error);
+    });
   };
 
   return (
@@ -76,17 +69,17 @@ const AdminOrdersTable = () => {
           <tbody>
             {orders.map(order => (
               <motion.tr
-                key={order.id}
+                key={order._id}
                 whileHover={{ scale: 1.02 }}
                 className="bg-gray-900 hover:bg-gray-700 text-white transition duration-300"
               >
-                <td className="px-6 py-4">{order.id}</td>
-                <td className="px-6 py-4">{order.customer}</td>
-                <td className="px-6 py-4">{order.date}</td>
-                <td className="px-6 py-4">${order.total.toFixed(2)}</td>
+                <td className="px-6 py-4">{order._id}</td>
+                <td className="px-6 py-4">{order.user.name}</td>
+                <td className="px-6 py-4">{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td className="px-6 py-4">₹{order.totalAmount.toFixed(2)}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-lg ${order.status === 'Shipped' ? 'bg-blue-600' : order.status === 'Delivered' ? 'bg-green-600' : 'bg-yellow-600'}`}>
-                    {order.status}
+                  <span className={`px-2 py-1 rounded-lg ${order.orderStatus === 'Shipped' ? 'bg-blue-600' : order.orderStatus === 'Delivered' ? 'bg-green-600' : 'bg-yellow-600'}`}>
+                    {order.orderStatus}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right space-x-4">

@@ -127,10 +127,16 @@ const getProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const totalProducts = await Product.countDocuments();
-    const products = await Product.find()
+    let products = await Product.find()
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
+
+    const categoryDetails = await Category.findById(products.category);
+    products = products.map(product => ({
+      ...product._doc,
+      categoryDetails: categoryDetails,
+    }));
     return res.status(200).json({ products, totalProducts });
   } catch (error) {
     console.error(error);
