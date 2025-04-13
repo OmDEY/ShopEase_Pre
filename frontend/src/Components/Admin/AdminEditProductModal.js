@@ -64,9 +64,42 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
   }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedProduct({ ...updatedProduct, [name]: value });
+    const { name, value, type, checked } = e.target;
+  
+    // Check if this is a category-specific field
+    const isCategoryField =
+      updatedProduct?.category &&
+      optionsData?.categories
+        ?.find((cat) => cat.name === updatedProduct.categoryName)
+        ?.fields?.includes(name);
+  
+    if (isCategoryField) {
+      const fieldType =
+        optionsData?.categoryFieldTypes?.[name] || "text";
+  
+      setUpdatedProduct((prev) => ({
+        ...prev,
+        categoryDetails: {
+          ...prev.categoryDetails,
+          [name]:
+            fieldType === "checkbox"
+              ? checked
+                ? Array.isArray(prev.categoryDetails?.[name])
+                  ? [...prev.categoryDetails[name], value]
+                  : [value]
+                : prev.categoryDetails[name]?.filter((v) => v !== value)
+              : value,
+        },
+      }));
+    } else {
+      // Regular top-level field
+      setUpdatedProduct((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
+  
 
   const handleCategoryChange = (e) => {
     setUpdatedProduct({ ...updatedProduct, category: e.target.value });
@@ -83,6 +116,11 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
     formData.append("price", updatedProduct.price);
     formData.append("category", updatedProduct.category);
     formData.append("stock", updatedProduct.stock);
+
+    formData.append(
+      "categoryDetails",
+      JSON.stringify(updatedProduct.categoryDetails || {})
+    );    
 
     if (selectedImages) {
       Array.from(selectedImages).forEach((file, index) => {
@@ -289,7 +327,7 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
                       </h3>
 
                       {optionsData.categories
-                        .find((cat) => cat.name === updatedProduct.category)
+                        .find((cat) => cat.name === updatedProduct.categoryName)
                         ?.fields?.map((field, index) => {
                           const fieldType =
                             optionsData.categoryFieldTypes?.[field] || "text";
@@ -306,7 +344,7 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
                               Array.isArray(selectOptions) ? (
                                 <select
                                   name={field}
-                                  value={updatedProduct?.[field] || ""}
+                                  value={updatedProduct?.categoryDetails?.[field] || ""}
                                   onChange={handleInputChange}
                                   className="w-full mt-1 p-2 bg-gray-800 rounded-md"
                                 >
@@ -328,11 +366,11 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
                                       name={field}
                                       value={option}
                                       checked={
-                                        Array.isArray(updatedProduct?.[field])
-                                          ? updatedProduct[field].includes(
+                                        Array.isArray(updatedProduct?.categoryDetails?.[field])
+                                          ? updatedProduct.categoryDetails[field].includes(
                                               option
                                             )
-                                          : updatedProduct?.[field] === option
+                                          : updatedProduct?.categoryDetails?.[field] === option
                                       }
                                       onChange={handleInputChange}
                                       className="form-checkbox text-blue-500"
@@ -344,7 +382,7 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
                                 <input
                                   type={fieldType}
                                   name={field}
-                                  value={updatedProduct?.[field] || ""}
+                                  value={updatedProduct?.categoryDetails?.[field] || ""}
                                   onChange={handleInputChange}
                                   className="w-full mt-1 p-2 bg-gray-800 rounded-md"
                                 />

@@ -47,7 +47,7 @@ const addProduct = async (req, res) => {
       ? colors
       : JSON.parse(colors || "[]");
 
-    console.log('mainImages >>> ', req.files)
+    console.log("mainImages >>> ", req.files);
 
     // Handle main images
     const mainImagesFiles = req.files.filter(
@@ -55,7 +55,7 @@ const addProduct = async (req, res) => {
     );
 
     mainImagesFiles.forEach((file) => {
-      console.log('file', file);
+      console.log("file", file);
     });
 
     const mainImagesPromises = mainImagesFiles.map((file) =>
@@ -63,7 +63,7 @@ const addProduct = async (req, res) => {
     );
     const mainImages = await Promise.all(mainImagesPromises);
 
-    console.log('mainImages', mainImages)
+    console.log("mainImages", mainImages);
 
     // Handle additional info and its images
     const additionalImagesPromises = additionalInfo?.map(
@@ -126,18 +126,34 @@ const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
+
     const totalProducts = await Product.countDocuments();
+
+    // Step 1: Populate category just to extract the name
     let products = await Product.find()
       .sort({ createdAt: -1 })
       .limit(limit)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .populate("category", "categoryName");
 
-    const categoryDetails = await Category.findById(products.category);
-    products = products.map(product => ({
-      ...product._doc,
-      categoryDetails: categoryDetails,
-    }));
-    return res.status(200).json({ products, totalProducts });
+    // Step 2: Format each product safely
+    const productsWithCategoryName = products.map((product) => {
+      const productObj = product.toObject();
+
+      // Save original category ObjectId
+      const categoryId = product.category?._id || product.category;
+
+      // Inject categoryName and restore original ObjectId
+      return {
+        ...productObj,
+        category: categoryId, // Ensure frontend gets ObjectId again
+        categoryName: product.category?.categoryName || null,
+      };
+    });
+
+    return res
+      .status(200)
+      .json({ products: productsWithCategoryName, totalProducts });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -168,8 +184,20 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, price, category, stock, additionalInfo } =
-      req.body;
+    const {
+      title,
+      description,
+      price,
+      category,
+      stock,
+      additionalInfo,
+      categoryDetails,
+    } = req.body;
+
+    let parsedCategoryDetails = categoryDetails;
+    if (typeof categoryDetails === "string") {
+      parsedCategoryDetails = JSON.parse(categoryDetails);
+    }
 
     // Check if additionalInfo is a string, and parse it if necessary
     let parsedAdditionalInfo = additionalInfo;
@@ -215,6 +243,7 @@ const updateProduct = async (req, res) => {
         price,
         category,
         stock,
+        categoryDetails: parsedCategoryDetails,
         images: mainImages,
         additionalInfo: additionalImages,
       },
@@ -257,9 +286,10 @@ const fetchProductsOnFilter = async (req, res) => {
     let filters = {};
 
     // Extract query parameters
-    const { category, Brand, colors, priceRange, searchTerm, ...otherFilters } = req.query;
+    const { category, Brand, colors, priceRange, searchTerm, ...otherFilters } =
+      req.query;
 
-    console.log('query >>> ', req.query)
+    console.log("query >>> ", req.query);
 
     // Category filter
     if (category) {
@@ -270,9 +300,9 @@ const fetchProductsOnFilter = async (req, res) => {
     if (Brand) {
       filters.$or = [
         { brand: new RegExp(`^${Brand}$`, "i") },
-        { 'categoryDetails.Brand': new RegExp(`^${Brand}$`, "i") }
+        { "categoryDetails.Brand": new RegExp(`^${Brand}$`, "i") },
       ];
-    }    
+    }
 
     // Colors filter (Multiple values comma-separated)
     if (colors) {
@@ -286,12 +316,10 @@ const fetchProductsOnFilter = async (req, res) => {
       filters.price = { $gte: min, $lte: max };
     }
 
-
-
     // Dynamic filters inside categoryDetails
     Object.keys(otherFilters).forEach((key) => {
-      if(key == "Warranty"){
-        otherFilters[key] = otherFilters[key].split(" ")[0]
+      if (key == "Warranty") {
+        otherFilters[key] = otherFilters[key].split(" ")[0];
       }
       filters[`categoryDetails.${key.toLowerCase()}`] = otherFilters[key];
     });
@@ -310,10 +338,13 @@ const fetchProductsOnFilter = async (req, res) => {
       ];
     }
 
-    console.log('filters', filters);
+    console.log("filters", filters);
 
     // Fetch products based on filters
-    const products = await Product.find(filters).populate('category', 'categoryName');
+    const products = await Product.find(filters).populate(
+      "category",
+      "categoryName"
+    );
 
     res.json({ success: true, data: products });
   } catch (error) {

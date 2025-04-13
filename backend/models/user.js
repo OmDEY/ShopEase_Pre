@@ -70,6 +70,8 @@ const userSchema = new Schema({
     state: String,
     postalCode: String,
     country: String,
+    type: { type: String, enum: ['Home', 'Work', 'Other'] },
+    isDefault: { type: Boolean, default: false },
   },
   billingAddress: {
     addressLine1: String,
@@ -78,6 +80,8 @@ const userSchema = new Schema({
     state: String,
     postalCode: String,
     country: String,
+    type: { type: String, enum: ['Home', 'Work', 'Other'] },
+    isDefault: { type: Boolean, default: false },
   },
   wishlist: [
     {
