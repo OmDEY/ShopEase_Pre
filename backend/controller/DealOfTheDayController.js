@@ -21,12 +21,24 @@ const getDealsOfTheDay = async (req, res) => {
       .populate("category", "name")
       .populate("reviews", "rating");
 
-    res.json(deals);
+    // Add originalPrice and price (discounted price) to each product
+    const dealsWithPrices = deals.map((product) => {
+      const originalPrice = product.price;
+      const price = originalPrice * (1 - product.discountPercentage / 100);
+      return {
+        ...product.toObject(),
+        originalPrice,  // Add original price
+        price,          // Add discounted price
+      };
+    });
+
+    res.json(dealsWithPrices);
   } catch (error) {
     console.error("Error fetching deals of the day:", error);
     res.status(500).json({ message: "Error fetching deals of the day" });
   }
 };
+
 
 module.exports = {
   getDealsOfTheDay,

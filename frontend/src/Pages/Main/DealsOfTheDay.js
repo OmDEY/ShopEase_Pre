@@ -17,12 +17,21 @@ const DealsOfTheDay = () => {
       try {
         setLoading(true);
         const response = await fetchDealsOfTheDay();
-        setProducts(response.data);
-        
+        console.log('res >>>', response);  // Log the response to check its structure
+  
+        // If response is an object, ensure it contains products
+        if (Array.isArray(response)) {
+          setProducts(response);
+        } else if (response?.products && Array.isArray(response.products)) {
+          setProducts(response.products);
+        } else {
+          console.error("Response does not contain a valid product array:", response);
+        }
+  
         // Set featured deal (first product with isFeatured flag or first product)
-        const featured = response.data.find((p) => p.isFeatured) || response.data[0];
+        const featured = response.find((p) => p.isFeatured) || response[0];
         setFeaturedProduct(featured);
-        
+  
         // Set deal end time (using featured product's end time or 24 hours from now)
         if (featured?.dealEndsAt) {
           const endTime = new Date(featured.dealEndsAt).getTime();
@@ -49,7 +58,6 @@ const DealsOfTheDay = () => {
         return prev - 1000;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 

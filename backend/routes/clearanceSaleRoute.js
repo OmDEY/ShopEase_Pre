@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { fetchClearanceProducts } = require("../controller/clearanceSaleController");
+const { fetchClearanceProducts, applyClearanceSaleDiscount } = require("../controller/clearanceSaleController");
 
 router.get("/fetch-clearance-products", fetchClearanceProducts);
+router.put("/apply-clearance-discount/:id", applyClearanceSaleDiscount);
 
 module.exports = router;

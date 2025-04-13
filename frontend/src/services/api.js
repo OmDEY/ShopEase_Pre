@@ -292,6 +292,19 @@ const addToWishlist = async (userId, productId) => {
     return response.data;
   };
 
+  const applyClearanceSaleDiscount = async (id, clearanceLevel, stock) => {
+    const response = await axios.put(`${API_URL}clearance-sale/apply-clearance-discount/${id}`, { clearanceLevel, stock });
+    return response.data;
+  };
+
+  const updateBundleOffer = async (productId, bundleData) => {
+    const response = await axios.put(
+      `${API_URL}bundle-offers/update-bundle-offer/${productId}`,
+      bundleData
+    );
+    return response.data;
+  };  
+
 export {
     fetchUserById,
     fetchHomePageBannerCarouselImages,
@@ -336,5 +349,7 @@ export {
     fetchOrders,
     fetchAllOrders,
     changeOrderStatus,
-    addShippingAddress
+    addShippingAddress,
+    applyClearanceSaleDiscount,
+    updateBundleOffer
 };

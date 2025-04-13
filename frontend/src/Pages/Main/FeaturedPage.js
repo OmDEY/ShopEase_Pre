@@ -15,7 +15,7 @@ const FeaturedPage = () => {
       try {
         setLoading(true);
         const response = await fetchFeaturedProducts();
-        setFeaturedProducts(response.data);
+        setFeaturedProducts(response);
       } catch (err) {
         setError("Failed to fetch featured products. Please try again later.");
         console.error("Error fetching featured products:", err);

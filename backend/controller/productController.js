@@ -192,6 +192,8 @@ const updateProduct = async (req, res) => {
       stock,
       additionalInfo,
       categoryDetails,
+      discountPercentage,
+      dealEndsAt,
     } = req.body;
 
     let parsedCategoryDetails = categoryDetails;
@@ -199,56 +201,67 @@ const updateProduct = async (req, res) => {
       parsedCategoryDetails = JSON.parse(categoryDetails);
     }
 
-    // Check if additionalInfo is a string, and parse it if necessary
     let parsedAdditionalInfo = additionalInfo;
     if (typeof additionalInfo === "string") {
       parsedAdditionalInfo = JSON.parse(additionalInfo);
     }
 
-    // Handle main images
-    const mainImagesFiles = req.files.filter(
-      (file) => file.fieldname === "mainImages"
-    );
-    const mainImagesPromises = mainImagesFiles.map((file) =>
-      uploadImageToCloudinary(file)
-    );
-    const mainImages = await Promise.all(mainImagesPromises);
+    const updateFields = {
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(price && { price }),
+      ...(category && { category }),
+      ...(stock && { stock }),
+      ...(parsedCategoryDetails && { categoryDetails: parsedCategoryDetails }),
+    };
 
-    // Handle additional info and its images
-    const additionalImagesPromises = parsedAdditionalInfo.map(
-      async (info, index) => {
-        const additionalImageFiles = req.files.filter(
-          (file) => file.fieldname === `additionalInfo[${index}][images]`
-        );
-        const uploadedAdditionalImagesPromises = additionalImageFiles.map(
-          (file) => uploadImageToCloudinary(file)
-        );
-        const uploadedAdditionalImages = await Promise.all(
-          uploadedAdditionalImagesPromises
-        );
-        return {
-          description: info.description,
-          images: uploadedAdditionalImages,
-        };
-      }
-    );
+    // Optional: update deal info if passed
+    if (discountPercentage !== undefined) {
+      updateFields.discountPercentage = discountPercentage;
+    }
 
-    const additionalImages = await Promise.all(additionalImagesPromises);
+    if (dealEndsAt !== undefined) {
+      updateFields.dealEndsAt = dealEndsAt;
+    }
 
-    const product = await Product.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        price,
-        category,
-        stock,
-        categoryDetails: parsedCategoryDetails,
-        images: mainImages,
-        additionalInfo: additionalImages,
-      },
-      { new: true }
-    );
+    // Handle main images if files were uploaded
+    if (req.files && req.files.length > 0) {
+      const mainImagesFiles = req.files.filter(
+        (file) => file.fieldname === "mainImages"
+      );
+      const mainImagesPromises = mainImagesFiles.map((file) =>
+        uploadImageToCloudinary(file)
+      );
+      const mainImages = await Promise.all(mainImagesPromises);
+      updateFields.images = mainImages;
+    }
+
+    // Handle additional info images if available
+    if (parsedAdditionalInfo && parsedAdditionalInfo.length) {
+      const additionalImagesPromises = parsedAdditionalInfo.map(
+        async (info, index) => {
+          const additionalImageFiles = req.files.filter(
+            (file) => file.fieldname === `additionalInfo[${index}][images]`
+          );
+          const uploadedAdditionalImagesPromises = additionalImageFiles.map(
+            (file) => uploadImageToCloudinary(file)
+          );
+          const uploadedAdditionalImages = await Promise.all(
+            uploadedAdditionalImagesPromises
+          );
+          return {
+            description: info.description,
+            images: uploadedAdditionalImages,
+          };
+        }
+      );
+      const additionalImages = await Promise.all(additionalImagesPromises);
+      updateFields.additionalInfo = additionalImages;
+    }
+
+    const product = await Product.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
 
     return res
       .status(200)
@@ -258,6 +271,7 @@ const updateProduct = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const deleteProduct = async (req, res) => {
   try {

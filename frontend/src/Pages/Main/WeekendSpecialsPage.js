@@ -45,7 +45,7 @@ const WeekendSpecialsPage = () => {
       try {
         setLoading(true);
         const response = await fetchWeekendSpecialProducts();
-        setProducts(response.data);
+        setProducts(response);
       } catch (err) {
         setError("Failed to load weekend specials. Please try again.");
         console.error("Error fetching weekend specials:", err);
@@ -279,7 +279,7 @@ const WeekendSpecialsPage = () => {
                         ${product.price.toFixed(2)}
                       </span>
                       <span className="ml-2 text-sm text-gray-500 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        ${product.originalPrice?.toFixed(2)}
                       </span>
                     </div>
                     <div className="text-xs text-pink-500 mt-1">

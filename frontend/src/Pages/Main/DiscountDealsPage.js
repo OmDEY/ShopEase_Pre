@@ -17,11 +17,11 @@ const DiscountDeals = () => {
         setLoading(true);
         // Replace with your actual API endpoint
         const response = await fetchDiscountDeals();
-        setProducts(response.data);
+        setProducts(response);
         
         // Initialize countdown timers
         const timers = {};
-        response.data.forEach((product) => {
+        response.forEach((product) => {
           if (product.dealEndsAt) {
             const endTime = new Date(product.dealEndsAt).getTime();
             const now = new Date().getTime();

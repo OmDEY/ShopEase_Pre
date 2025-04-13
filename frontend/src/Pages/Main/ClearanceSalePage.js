@@ -15,7 +15,7 @@ const ClearanceSalePage = () => {
       try {
         setLoading(true);
         const response = await fetchClearanceProducts();
-        setProducts(response.data);
+        setProducts(response);
       } catch (err) {
         setError("Failed to load clearance items. Please try again.");
         console.error("Error fetching clearance products:", err);

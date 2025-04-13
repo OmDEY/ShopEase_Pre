@@ -42,6 +42,22 @@ const AdminSidebar = () => {
             <FaCog />
             <span>Settings</span>
           </li>
+          <li onClick={() => navigate('/admin/dealOfTheDay')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
+            <FaBox />
+            <span>Deal of the Day</span>
+          </li>
+          <li onClick={() => navigate('/admin/weekendSpecial')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
+            <FaBox />
+            <span>Weekend Special</span>
+          </li>
+          <li onClick={() => navigate('/admin/clearanceSale')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
+            <FaBox />
+            <span>Clearance Sale</span>
+          </li>
+          <li onClick={() => navigate('/admin/bundleOffer')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
+            <FaBox />
+            <span>Bundle Offer</span>
+          </li>
         </ul>
       </div>
 
