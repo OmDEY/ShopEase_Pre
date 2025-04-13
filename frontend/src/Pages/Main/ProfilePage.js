@@ -14,7 +14,12 @@ import {
   FiTrash2,
   FiPlus,
 } from "react-icons/fi";
-import { fetchUserById, addShippingAddress } from "../../services/api";
+import {
+  fetchUserById,
+  addShippingAddress,
+  fetchOrders,
+  getWishlist,
+} from "../../services/api";
 import { toast } from "react-toastify";
 
 const ProfilePage = () => {
@@ -108,6 +113,23 @@ const ProfilePage = () => {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const fileInputRef = useRef(null);
 
+  const fetchUserDetails = async () => {
+    const userId = localStorage.getItem("userId");
+    const user = await fetchUserById(userId);
+    setUserInfo(user.data);
+  }
+
+  const fetchWishlistData = async () => {
+    const userId = localStorage.getItem("userId");
+    const wishlist = await getWishlist(userId);
+    setWishlist(wishlist.data.data);
+  };
+
+  const fetchOrdersData = async () => {
+    const orders = await fetchOrders();
+    setOrders(orders.orders);
+  };
+
   const fetchUserData = async () => {
     const userId = localStorage.getItem("userId");
     try {
@@ -119,7 +141,7 @@ const ProfilePage = () => {
           {
             id: Math.floor(Math.random() * 1000000) + 1, // Generate a random ID between 1 and 1,000,000
             type: "Home",
-            street: shipping.addressLine1 || 'NA',
+            street: shipping.addressLine1 || "NA",
             city: shipping.city,
             state: shipping.state,
             postalCode: shipping.postalCode,
@@ -135,6 +157,9 @@ const ProfilePage = () => {
   };
   useEffect(() => {
     fetchUserData();
+    fetchOrdersData();
+    fetchWishlistData();
+    fetchUserDetails();
   }, []);
 
   const handleProfilePicChange = (e) => {
@@ -164,7 +189,7 @@ const ProfilePage = () => {
   };
 
   const handleAddAddress = async () => {
-    console.log('newAddress >>', newAddress)
+    console.log("newAddress >>", newAddress);
 
     try {
       // Send new address to backend
@@ -352,7 +377,7 @@ const ProfilePage = () => {
                 <FiHeart size={18} />
                 <span>Wishlist</span>
               </button>
-              <button
+              {/* <button
                 onClick={() => setActiveTab("payments")}
                 className={`w-full flex items-center space-x-3 p-3 rounded-lg transition ${
                   activeTab === "payments"
@@ -370,7 +395,7 @@ const ProfilePage = () => {
               >
                 <FiCreditCard size={18} />
                 <span>Payment Methods</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => setActiveTab("settings")}
                 className={`w-full flex items-center space-x-3 p-3 rounded-lg transition ${
@@ -642,8 +667,7 @@ const ProfilePage = () => {
                   </div>
                 )}
 
-                {addresses?.[0].street === "" ||
-                !addresses?.[0].street ? (
+                {addresses?.[0].street === "" || !addresses?.[0].street ? (
                   <div className="p-6 rounded-lg border border-gray-200 bg-gray-50">
                     <p className="text-center text-sm">
                       No Address present, please add a new address
@@ -729,28 +753,42 @@ const ProfilePage = () => {
                     <tbody>
                       {orders.map((order) => (
                         <tr
-                          key={order.id}
+                          key={order._id}
                           className={`border-b ${
                             darkMode ? "border-gray-700" : "border-gray-200"
                           }`}
                         >
-                          <td className="py-4 px-4">#{order.id}</td>
-                          <td className="py-4 px-4">{order.date}</td>
-                          <td className="py-4 px-4">{order.items}</td>
+                          <td className="py-4 px-4">#{order._id}</td>
+                          <td className="py-4 px-4">{order.createdAt}</td>
                           <td className="py-4 px-4">
-                            ${order.total.toFixed(2)}
+                            <ul className="space-y-1">
+                              {order.items.map((item, index) => (
+                                <li
+                                  key={index}
+                                  className="text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  <span className="font-medium">
+                                    {item.product.title}
+                                  </span>{" "}
+                                  × {item.quantity}
+                                </li>
+                              ))}
+                            </ul>
+                          </td>
+                          <td className="py-4 px-4">
+                            ${order.totalAmount.toFixed(2)}
                           </td>
                           <td className="py-4 px-4">
                             <span
                               className={`px-2 py-1 text-xs rounded-full ${
-                                order.status === "Delivered"
+                                order.orderStatus === "Delivered"
                                   ? "bg-green-100 text-green-800"
-                                  : order.status === "Shipped"
+                                  : order.orderStatus === "Shipped"
                                   ? "bg-blue-100 text-blue-800"
                                   : "bg-yellow-100 text-yellow-800"
                               }`}
                             >
-                              {order.status}
+                              {order.orderStatus}
                             </span>
                           </td>
                           <td className="py-4 px-4">
@@ -778,19 +816,19 @@ const ProfilePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {wishlist.map((item) => (
                     <div
-                      key={item.id}
+                      key={item._id}
                       className={`p-4 rounded-lg border ${
                         darkMode ? "border-gray-700" : "border-gray-200"
                       }`}
                     >
                       <div className="flex space-x-4">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.images?.[0]}
+                          alt={item.title}
                           className="w-20 h-20 object-cover rounded"
                         />
                         <div className="flex-1">
-                          <h3 className="font-medium">{item.name}</h3>
+                          <h3 className="font-medium">{item.title}</h3>
                           <p className="text-lg font-semibold mt-1">
                             ${item.price.toFixed(2)}
                           </p>
@@ -799,7 +837,7 @@ const ProfilePage = () => {
                               Add to Cart
                             </button>
                             <button
-                              onClick={() => handleRemoveFromWishlist(item.id)}
+                              onClick={() => handleRemoveFromWishlist(item._id)}
                               className="text-sm text-red-600 hover:text-red-800"
                             >
                               Remove
@@ -814,7 +852,7 @@ const ProfilePage = () => {
             )}
 
             {/* Payment Methods Tab */}
-            {activeTab === "payments" && (
+            {/* {activeTab === "payments" && (
               <div
                 className={`p-6 rounded-lg shadow-md ${
                   darkMode ? "bg-gray-800" : "bg-white"
@@ -885,7 +923,7 @@ const ProfilePage = () => {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Account Settings Tab */}
             {activeTab === "settings" && (
