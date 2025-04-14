@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-// const API_URL = 'http://localhost:4000/api/';
+// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+const API_URL = 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -101,9 +101,9 @@ const fetchCart = async () => {
     return response;
 }
 
-const addToCart = async (productId, quantity) => {
+const addToCart = async (productId, quantity, selectedSize) => {
     const response = await axios.post(`${API_URL}cart/addToCart`,
-        { productId, quantity: quantity },
+        { productId, quantity: quantity, selectedSize },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
     )
 

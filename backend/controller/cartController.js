@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const addToCart = async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, quantity, selectedSize } = req.body;
 
         // Fetch the product details to get the price
         const product = await Product.findById(productId);
@@ -20,7 +20,8 @@ const addToCart = async (req, res) => {
                 user: req.user._id,
                 items: [{ product: productId, quantity, price: product.price }],
                 totalPrice: product.price * quantity,
-                totalItems: 1
+                totalItems: 1,
+                selectedSize: selectedSize,
             });
             await newCart.save();
             return res.status(201).json({ message: 'Product added to cart successfully' });
@@ -34,6 +35,7 @@ const addToCart = async (req, res) => {
             const newQuantity = item.quantity + quantity;
             cart.items[itemIndex].quantity = newQuantity;
             cart.items[itemIndex].price = product.price;
+            cart.items[itemIndex].selectedSize = selectedSize;
 
             // Update total price and total items
             cart.totalPrice += product.price * quantity;
@@ -41,7 +43,7 @@ const addToCart = async (req, res) => {
             return res.status(201).json({ message: 'Product quantity updated successfully' });
         } else {
             // If the product is not in the cart, add it
-            cart.items.push({ product: productId, quantity, price: product.price });
+            cart.items.push({ product: productId, quantity, price: product.price, selectedSize: selectedSize });
             cart.totalPrice += product.price * quantity;
             cart.totalItems += 1;
             await cart.save();

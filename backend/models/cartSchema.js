@@ -15,6 +15,10 @@ const cartItemSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true
+    },
+    selectedSize: { // 🆕 NEW FIELD
+        type: String,
+        required: false
     }
 }, { _id: false }); // _id: false prevents Mongoose from creating a separate _id for each item
 

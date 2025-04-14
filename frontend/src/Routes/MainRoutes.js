@@ -25,6 +25,9 @@ import FeaturedPage from '../Pages/Main/FeaturedPage';
 import WeekendSpecialsPage from '../Pages/Main/WeekendSpecialsPage';
 import ClearanceSalePage from '../Pages/Main/ClearanceSalePage';
 import BundleOffersPage from '../Pages/Main/BundleOffersPage ';
+import AboutUsPage from '../Pages/Main/AboutUsPage';
+import ContactUsPage from '../Pages/Main/ContactUsPage';
+import PrivacyPolicyPage from '../Pages/Main/PrivacyPolicyPage';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -53,6 +56,9 @@ const MainRoutes = () => {
       <Route path="/weekend-specials" element={<ProtectedRoute><WeekendSpecialsPage /></ProtectedRoute>} />
       <Route path="/clearance-sale" element={<ProtectedRoute><ClearanceSalePage /></ProtectedRoute>} />
       <Route path="/bundle-offers" element={<ProtectedRoute><BundleOffersPage /></ProtectedRoute>} />
+      <Route path="/about" element={<ProtectedRoute><AboutUsPage /></ProtectedRoute>} />
+      <Route path="/contact" element={<ProtectedRoute><ContactUsPage /></ProtectedRoute>} />
+      <Route path="/privacy-policy" element={<ProtectedRoute><PrivacyPolicyPage /></ProtectedRoute>} />
     </Routes>
   );
 };

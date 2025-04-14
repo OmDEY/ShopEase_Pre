@@ -478,7 +478,7 @@ const submitProductReview = async (req, res) => {
   ) {
     return res.status(400).json({ error: "Invalid user or product ID" });
   }
-
+  
   try {
     const newReview = new UserReview({
       userId,

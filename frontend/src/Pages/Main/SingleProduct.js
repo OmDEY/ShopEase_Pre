@@ -11,10 +11,16 @@ import {
 import ImageMagnifier from "../../Components/Main/ImageMagnifier"; // Assuming ImageMagnifier is in the same folder
 import BigCard from "../../Components/Main/Common/BigCard";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
-import { fetchProductById, removeFromWishlist, submitProductReview, checkWishlist, addToWishlist } from "../../services/api";
+import {
+  fetchProductById,
+  removeFromWishlist,
+  submitProductReview,
+  checkWishlist,
+  addToWishlist,
+} from "../../services/api";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { addToCart } from "../../services/api";
 
 // Dummy product data
 const DummyProduct = {
@@ -101,6 +107,7 @@ const SingleProductDisplay = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
   const [reviews, setReviews] = useState([
     { id: 1, name: "John Doe", rating: 4, comment: "Great product!" },
     {
@@ -119,6 +126,22 @@ const SingleProductDisplay = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const productId = searchParams.get("productId") || ""; // Get search term from query string
+
+  const handleAddToCart = async () => {
+    if (product.categoryDetails?.size && !selectedSize) {
+      toast.warning("Please select a size before adding to cart.");
+      return;
+    }
+  
+    await addToCart( product._id, 1, selectedSize,)
+      .then((res) => {
+        toast.success("Product added to cart!");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to add product to cart.");
+      });
+  };  
 
   useEffect(() => {
     console.log("productId", productId);
@@ -140,29 +163,29 @@ const SingleProductDisplay = () => {
   const toggleWishlistItem = async () => {
     try {
       if (isInWishlist) {
-        let userId = localStorage.getItem('userId')
-        await removeFromWishlist(userId, productId)
+        let userId = localStorage.getItem("userId");
+        await removeFromWishlist(userId, productId);
         setIsInWishlist(false);
-        toast.info('Removed from wishlist', {
+        toast.info("Removed from wishlist", {
           position: "top-right",
           autoClose: 1500,
         });
       } else {
         // Add to wishlist
-        let userId = localStorage.getItem('userId')
-        await addToWishlist(userId, productId)
+        let userId = localStorage.getItem("userId");
+        await addToWishlist(userId, productId);
         setIsInWishlist(true);
-        toast.success('Added to wishlist', {
+        toast.success("Added to wishlist", {
           position: "top-right",
           autoClose: 1500,
         });
       }
-  
+
       setIsInWishlist(!isInWishlist);
     } catch (err) {
       console.error("Error toggling wishlist:", err);
     }
-};
+  };
 
   const fetchProduct = async () => {
     fetchProductById(productId)
@@ -327,27 +350,64 @@ const SingleProductDisplay = () => {
               </div>
             </div>
 
-            {/* Size Selection */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Select Size</h3>
-              <div className="flex space-x-4">
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                  S
-                </button>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                  M
-                </button>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                  L
-                </button>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                  XL
-                </button>
+            {/* Category Specific Details */}
+            {product.categoryDetails &&
+              Object.keys(product.categoryDetails).length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Product Specifications
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.entries(product.categoryDetails).map(
+                      ([key, value], idx) => (
+                        <div
+                          key={idx}
+                          className="bg-gray-100 p-4 rounded-lg shadow-sm"
+                        >
+                          <p className="text-gray-600 font-medium capitalize">
+                            {key.replace(/([A-Z])/g, " $1")}
+                          </p>
+                          <p className="text-gray-800 font-semibold">
+                            {Array.isArray(value) ? value.join(", ") : value}
+                          </p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+            {/* Dynamic Size Selection if available */}
+            {product?.categoryDetails?.size && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Select Size</h3>
+                <div className="flex flex-wrap gap-2">
+                  {Array.isArray(product.categoryDetails.size)
+                    ? product.categoryDetails.size.map((sizeOption, idx) => (
+                        <button
+                          key={idx}
+                          className={`px-4 py-2 rounded-lg border ${
+                            selectedSize === sizeOption
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-800"
+                          } hover:bg-blue-500 hover:text-white`}
+                          onClick={() => setSelectedSize(sizeOption)}
+                        >
+                          {sizeOption}
+                        </button>
+                      ))
+                    : null}
+                </div>
+                {!selectedSize && (
+                  <p className="text-sm text-red-500 mt-2">
+                    Please select a size
+                  </p>
+                )}
               </div>
-            </div>
+            )}
 
             {/* Add to Cart Button */}
-            <button className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">
+            <button onClick={handleAddToCart} className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">
               Add to Cart
             </button>
           </div>
@@ -473,7 +533,7 @@ const SingleProductDisplay = () => {
                     review?.userId?.fullName
                   ) : (
                     <>
-                      {review?.userId?.firstName} {review?.userId?.lastName}
+                      {review?.userId?.firstName} {review?.userId?.lastName} {review?.userId?.name}
                     </>
                   )}
                 </h3>
