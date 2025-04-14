@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-const API_URL = 'http://localhost:4000/api/';
+const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+// const API_URL = 'http://localhost:4000/api/';
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
     const response = await axios.post(`${API_URL}homePageCategoryDataUploads/upload/HomePageBannerImages`, formData, {
@@ -305,6 +305,23 @@ const addToWishlist = async (userId, productId) => {
     return response.data;
   };  
 
+  const adminAddFeaturedProduct = async (payload) => {
+    const response = await axios.post(
+       `${API_URL}featured-products/add-featured-product`,
+       payload
+    );
+
+    return response;
+}
+
+  const adminAddPopularProduct = async (payload) => {
+    const response = await axios.post(
+      `${API_URL}popular-product/admin-add-popular-products`,
+      payload
+    )
+    return response;
+  }
+
 export {
     fetchUserById,
     fetchHomePageBannerCarouselImages,
@@ -351,5 +368,7 @@ export {
     changeOrderStatus,
     addShippingAddress,
     applyClearanceSaleDiscount,
-    updateBundleOffer
+    updateBundleOffer,
+    adminAddFeaturedProduct,
+    adminAddPopularProduct
 };
