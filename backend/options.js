@@ -319,6 +319,19 @@ module.exports = {
         name: "Healthcare & Wellness",
         fields: ["expirationDate", "benefits", "usage"],
       },
+      {
+        name: "Cake & Milk",
+        fields: ["expirationDate", "weight", "ingredients"],
+      },
+      {
+        name: "Coffee & Tea",
+        fields: ["ingredients", "weight", "expirationDate"],
+      },
+      {
+        name: "Pet Foods",
+        fields: ["weight", "expirationDate", "ingredients"],
+      },
+      { name: "Vegetables", fields: ["weight", "expirationDate", "organic"] },
     ],
     categorySelectOptions: {
       color: ["Red", "Blue", "Green", "Black", "White"],
@@ -328,6 +341,7 @@ module.exports = {
       vehicleType: ["Car", "Motorcycle", "Truck"],
       size: ["XS", "S", "M", "L", "XL", "XXL"],
       isReturnable: ["Yes", "No"],
+      petType: ["Dog", "Cat", "Bird", "Other"],
     },
     categoryFieldTypes: {
       size: "checkbox",
@@ -359,6 +373,11 @@ module.exports = {
       waterResistance: "text",
       benefits: "text",
       usage: "text",
+      flavor: "text",
+      petType: "select",
+      origin: "text",
+      isOrganic: "checkbox",
+      organic: "radio",
     },
     fieldTypes: {
       size: "checkbox",
@@ -390,6 +409,7 @@ module.exports = {
       waterResistance: "text",
       benefits: "text",
       usage: "text",
+      organic: "radio",
     },
   },
 };

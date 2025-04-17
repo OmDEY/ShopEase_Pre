@@ -28,6 +28,7 @@ import BundleOffersPage from '../Pages/Main/BundleOffersPage ';
 import AboutUsPage from '../Pages/Main/AboutUsPage';
 import ContactUsPage from '../Pages/Main/ContactUsPage';
 import PrivacyPolicyPage from '../Pages/Main/PrivacyPolicyPage';
+import TermsAndConditionsPage from '../Pages/Main/TermsAndConditionsPage';
 
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
@@ -38,6 +39,8 @@ const MainRoutes = () => {
       <Route path="/auth/userDetails" element={isAuthenticated ? <Navigate to="/" /> : <UserDetailsPage />} />
       <Route path="/auth/admin" element={isAuthenticated ? <Navigate to="/" /> : <AdminAuthPage />} />
       <Route path="/" element={<HomePage />} />
+
+      {/* Protected Routes */}
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/comparison" element={<ProtectedRoute><ComparisonTablePage /></ProtectedRoute>} />
       <Route path="/wishlist" element={<ProtectedRoute><WishListPage /></ProtectedRoute>} />
@@ -59,6 +62,7 @@ const MainRoutes = () => {
       <Route path="/about" element={<ProtectedRoute><AboutUsPage /></ProtectedRoute>} />
       <Route path="/contact" element={<ProtectedRoute><ContactUsPage /></ProtectedRoute>} />
       <Route path="/privacy-policy" element={<ProtectedRoute><PrivacyPolicyPage /></ProtectedRoute>} />
+      <Route path="/terms-conditions" element={<ProtectedRoute><TermsAndConditionsPage /></ProtectedRoute>} />
     </Routes>
   );
 };

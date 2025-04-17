@@ -1,3 +1,5 @@
+const cloudinary = require('../config/cloudinary'); // adjust path
+const streamifier = require('streamifier');
 const { Product } = require("../models/product");
 
 const getFeaturedProducts = async (req, res) => {
@@ -39,6 +41,27 @@ const getFeaturedProducts = async (req, res) => {
   }
 };
 
+const markAsFeatured = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { isFeatured } = req.body;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { isFeatured },
+      { new: true }
+    );
+
+    res.status(200).json({ product: updatedProduct });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update product" });
+  }
+};
+
+
+
 module.exports = {
   getFeaturedProducts,
+  markAsFeatured,
 };

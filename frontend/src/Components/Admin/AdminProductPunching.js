@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { FaPlusCircle, FaTrashAlt, FaUpload } from "react-icons/fa";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners"; // Add a loader, e.g., from react-spinners
 import { adminAddProduct, fetchOptions } from "../../services/api";

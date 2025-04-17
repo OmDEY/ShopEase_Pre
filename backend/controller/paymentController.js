@@ -119,7 +119,7 @@ const verifyPayment = async (req, res) => {
       });
     };
 
-    const result = await streamUpload(pdfBuffer);
+    const result = await streamUpload(pdfBuffer, order._id);
 
     // ✅ Step 4: Save invoice URL
     order.invoiceUrl = result.secure_url;

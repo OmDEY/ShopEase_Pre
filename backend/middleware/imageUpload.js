@@ -7,7 +7,7 @@ const fileFilter = (req, file, cb) => {
     if (file.fieldname === 'mainImages' || file.fieldname.startsWith('additionalInfo[')) {
         cb(null, true);
     } else {
-        cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname));
+        cb(null, true);
     }
 };
 

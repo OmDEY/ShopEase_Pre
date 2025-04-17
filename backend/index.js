@@ -20,6 +20,7 @@ const weekendSpecialProductsRoutes = require('./routes/weekendSpecialProductsRou
 const clearanceSaleRoute = require('./routes/clearanceSaleRoute');
 const bundleOffersRoute = require('./routes/bundleOffersRoute');
 const orderRoutes = require('./routes/orderRoutes');
+const popularProductRoutes = require('./routes/popularProductRoutes');
 
 
 const port = 4000;
@@ -49,6 +50,7 @@ connect().then(() => {
     app.use('/api/clearance-sale', clearanceSaleRoute);
     app.use('/api/bundle-offers', bundleOffersRoute);
     app.use('/api/orders', orderRoutes);
+    app.use('/api/popular-product', popularProductRoutes)
 
     app.get('/', async (req, res) => {
         res.send('Hello World');

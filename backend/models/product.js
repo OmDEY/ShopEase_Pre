@@ -46,6 +46,11 @@ const ProductSchema = new mongoose.Schema(
       bundlePrice: { type: Number },
       includedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     },
+    dailySales: {
+      isFeatured: { type: Boolean, default: false },
+      isPopular: { type: Boolean, default: false },
+      isNewlyAdded: { type: Boolean, default: false }
+    },
   },
   { timestamps: true }
 );

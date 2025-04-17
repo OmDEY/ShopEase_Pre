@@ -12,6 +12,9 @@ import AdminDealOfTheDayPage from '../Pages/Admin/AdminDealOfTheDayPage';
 import AdminWeekendSpecialPage from '../Pages/Admin/AdminWeekendSpecialPage';
 import AdminClearanceSalePage from '../Pages/Admin/AdminClearanceSalePage';
 import AdminBundleOffersPage from '../Pages/Admin/AdminBundleOffersPage';
+import AdminFeaturedProductsPage from '../Pages/Admin/AdminFeaturedProductsPage';
+import AdminPopularProductsAddPage from '../Pages/Admin/AdminPopularProductsAddPage';
+import AdminDailyBestSalesPage from '../Pages/Admin/AdminDailyBestSalesPage';
 
 const AdminRoutes = () => {
   const { isAdmin } = useContext(SearchContext);
@@ -27,10 +30,14 @@ const AdminRoutes = () => {
         <Route path="/weekendSpecial" element={<AdminWeekendSpecialPage />} />
         <Route path="/clearanceSale" element={<AdminClearanceSalePage />} />
         <Route path="/bundleOffer" element={<AdminBundleOffersPage/>} />
+        <Route path="/featuredProducts" element={<AdminFeaturedProductsPage/>} />
+        <Route path="/popularProductsAdd" element={<AdminPopularProductsAddPage/>} />
+        <Route path="/dailyBestSales" element={<AdminDailyBestSalesPage/>} />
       </Routes>
     </ProtectedRoute>
   ) : 
+    
     <Navigate to="/auth" />;
-};
+}; 
 
 export default AdminRoutes;
