@@ -226,29 +226,28 @@ const Navbar = () => {
       dropdown: [
         { label: "About Us", link: "/about" },
         { label: "Contact Us", link: "/contact" },
-        { label: "FAQ", link: "/faq" },
         { label: "Privacy Policy", link: "/privacy-policy" },
         { label: "Terms & Conditions", link: "/terms-conditions" },
       ],
     },
-    {
-      name: "Blog",
-      link: "/blog",
-      dropdown: [
-        { label: "Latest Posts", link: "/blog/latest-posts" },
-        { label: "Product Reviews", link: "/blog/product-reviews" },
-        { label: "Buying Guides", link: "/blog/buying-guides" },
-      ],
-    },
-    {
-      name: "Vendors",
-      link: "/vendors",
-      dropdown: [
-        { label: "Become a Vendor", link: "/vendors/become" },
-        { label: "Vendor Directory", link: "/vendors/directory" },
-        { label: "Vendor Dashboard", link: "/vendors/dashboard" },
-      ],
-    },
+    // {
+    //   name: "Blog",
+    //   link: "/blog",
+    //   dropdown: [
+    //     { label: "Latest Posts", link: "/blog/latest-posts" },
+    //     { label: "Product Reviews", link: "/blog/product-reviews" },
+    //     { label: "Buying Guides", link: "/blog/buying-guides" },
+    //   ],
+    // },
+    // {
+    //   name: "Vendors",
+    //   link: "/vendors",
+    //   dropdown: [
+    //     { label: "Become a Vendor", link: "/vendors/become" },
+    //     { label: "Vendor Directory", link: "/vendors/directory" },
+    //     { label: "Vendor Dashboard", link: "/vendors/dashboard" },
+    //   ],
+    // },
   ];
   
 
@@ -291,8 +290,8 @@ const Navbar = () => {
               <FaHeadphones className="inline mr-1" />
               Need Help? Call Us
             </span>
-            <span className="text-sm hidden md:inline">|</span>
-            <div className="hidden md:block relative group">
+            {/* <span className="text-sm hidden md:inline">|</span> */}
+            {/* <div className="hidden md:block relative group">
               <span className="text-sm cursor-pointer hover:underline flex items-center">
                 Language <FaChevronDown className="ml-1 text-xs" />
               </span>
@@ -303,8 +302,8 @@ const Navbar = () => {
                   <div className="block px-2 py-1 hover:bg-gray-100 rounded">French</div>
                 </div>
               </div>
-            </div>
-            <span className="text-sm hidden md:inline">|</span>
+            </div> */}
+            {/* <span className="text-sm hidden md:inline">|</span>
             <div className="hidden md:block relative group">
               <span className="text-sm cursor-pointer hover:underline flex items-center">
                 Currency <FaChevronDown className="ml-1 text-xs" />
@@ -316,7 +315,7 @@ const Navbar = () => {
                   <div className="block px-2 py-1 hover:bg-gray-100 rounded">GBP (£)</div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -349,7 +348,7 @@ const Navbar = () => {
 
           {/* Icons */}
           <div className="flex space-x-4 md:space-x-6 text-gray-600 items-center">
-            <div className="hidden md:flex items-center group relative">
+            {/* <div className="hidden md:flex items-center group relative">
               <FaMapMarkerAlt className="mr-1 text-xl text-blue-600" />
               <span className="text-sm cursor-pointer hover:underline">
                 Your Location
@@ -363,7 +362,7 @@ const Navbar = () => {
                   <option>Australia</option>
                 </select>
               </div>
-            </div>
+            </div> */}
             
             <div className="hidden md:flex items-center group relative">
               <FaSyncAlt className="cursor-pointer text-xl hover:text-pink-600 transition-colors" />
