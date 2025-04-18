@@ -48,7 +48,7 @@ const markAsFeatured = async (req, res) => {
 
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
-      { isFeatured },
+      { "dailySales.isFeatured": isFeatured },
       { new: true }
     );
 

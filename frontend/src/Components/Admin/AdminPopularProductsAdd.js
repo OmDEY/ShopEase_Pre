@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
-import { fetchAllProducts } from "../../services/api";
+import { fetchAllProducts, adminAddPopularProduct } from "../../services/api";
 
 const AdminPopularPage = () => {
   const [products, setProducts] = useState([]);
@@ -21,9 +20,7 @@ const AdminPopularPage = () => {
 
   const togglePopular = async (id, currentStatus) => {
     try {
-      await axios.patch(`/api/products/${id}/popular`, {
-        isPopular: !currentStatus,
-      });
+      await adminAddPopularProduct(id, { isPopular: !currentStatus });
       fetchProducts();
     } catch (err) {
       console.error(err);

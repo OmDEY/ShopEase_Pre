@@ -6,6 +6,6 @@ const { getFeaturedProducts, markAsFeatured } = require("../controller/featuredP
 
 router.get("/fetch-featured-products", getFeaturedProducts);
 
-router.post("/add-featured-product", imageUpload, markAsFeatured);
+router.post("/add-featured-product/:id", markAsFeatured);
 
 module.exports = router;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
-import { fetchAllProducts } from "../../services/api";
+import { fetchAllProducts, adminAddFeaturedProduct } from "../../services/api";
 
 const AdminFeaturedPage = () => {
   const [products, setProducts] = useState([]);
@@ -21,9 +20,7 @@ const AdminFeaturedPage = () => {
 
   const toggleFeatured = async (id, currentStatus) => {
     try {
-      await axios.patch(`/api/products/${id}/feature`, {
-        isFeatured: !currentStatus,
-      });
+      await adminAddFeaturedProduct(id, { isFeatured: !currentStatus });
       fetchProducts(); // Refresh
     } catch (err) {
       console.error(err);

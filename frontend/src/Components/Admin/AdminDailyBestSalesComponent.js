@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import classNames from "classnames";
-import { fetchAllProducts } from "../../services/api";
+import { fetchAllProducts, adminAddDailyBestSalesProduct } from "../../services/api";
 
 const tabs = [
   { name: "Featured", key: "isFeatured" },
@@ -29,7 +28,7 @@ const AdminDailyBestSalesComponent = () => {
 
   const toggleStatus = async (id, currentValue) => {
     try {
-      await axios.put(`/api/admin/products/${id}/daily-sales`, {
+      await adminAddDailyBestSalesProduct(id, {
         type: activeTab,
         value: !currentValue,
       });

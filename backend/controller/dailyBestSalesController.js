@@ -22,7 +22,27 @@ const updateDailySales = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
+
+  const fetchDailyBestSalesProducts = async (req, res) => {
+    try {
+      const [featured, popular, newlyAdded] = await Promise.all([
+        Product.find({ "dailySales.isFeatured": true }).limit(10),
+        Product.find({ "dailySales.isPopular": true }).limit(10),
+        Product.find({ "dailySales.isNewlyAdded": true }).limit(10),
+      ]);
+  
+      res.json({
+        featured,
+        popular,
+        newlyAdded,
+      });
+    } catch (err) {
+      console.error("Error fetching Daily Best Sales:", err);
+      res.status(500).json({ error: "Server Error" });
+    }
+  }
   
   module.exports = {
-    updateDailySales
+    updateDailySales,
+    fetchDailyBestSalesProducts
   }

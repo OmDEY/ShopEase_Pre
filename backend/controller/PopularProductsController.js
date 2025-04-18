@@ -18,7 +18,21 @@ const markAsPopular = async (req, res) => {
   }
 };
 
+const fetchPopularProducts = async (req, res) => {
+  try {
+    const popularProducts = await Product.find({ 'dailySales.isPopular': true })
+      .populate('category', 'name') // optional: populate category name if needed
+      .sort({ averageRating: -1 })  // sort by rating
+      .limit(30); // fetch top 30
+
+    res.status(200).json(popularProducts);
+  } catch (error) {
+    console.error('Error fetching popular products:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
 
 module.exports = {
   markAsPopular,
+  fetchPopularProducts
 };
