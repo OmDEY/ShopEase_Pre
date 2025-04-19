@@ -1,0 +1,57 @@
+<!-- /templates/orderStatusEmail.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order Update</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ddd;
+    }
+    .status {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2b6cb0;
+    }
+    .footer {
+      font-size: 12px;
+      color: #888;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #d53f8c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Hello {{firstName}},</h2>
+    <p>Your order <span class="highlight">#{{orderId}}</span> is now <span class="status">{{orderStatus}}</span>.</p>
+
+    <p><strong>Total:</strong> ₹{{totalAmount}}</p>
+    <p><strong>Shipping Address:</strong><br>{{fullName}}, {{address}}, {{city}}, {{state}} - {{pincode}}</p>
+
+    {{#if trackingNumber}}
+    <p><strong>Tracking Number:</strong> {{trackingNumber}}</p>
+    {{/if}}
+
+    <p>Thank you for shopping with <strong>ShopEase</strong>!</p>
+    
+    <div class="footer">
+      © {{year}} ShopEase. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>

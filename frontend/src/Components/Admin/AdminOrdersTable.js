@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { FaEdit, FaEnvelope, FaEye } from 'react-icons/fa';
 import AdminOrderModal from './AdminOrderModal';
 import AdminOrderDetailsModal from './AdminOrderDetailsModal';
-import { fetchAllOrders, changeOrderStatus } from '../../services/api';
+import { fetchAllOrders, changeOrderStatus, sendOrderStatusEmail } from '../../services/api';
 import { toast } from "react-toastify";
 
 const AdminOrdersTable = () => {
@@ -35,6 +35,17 @@ const AdminOrdersTable = () => {
   const openDetailsModal = (order) => {
     setSelectedOrder(order);
     setIsDetailsOpen(true);
+  };
+
+  const handleOrderStatusEmail = (order) => {
+    sendOrderStatusEmail(order._id)
+    .then(() => {
+      toast.success('Order status email sent successfully');
+    })
+    .catch(error => {
+      console.error('Error sending order status email:', error);
+      toast.error('Failed to send order status email');
+    });
   };
 
   const updateOrderStatus = async (updatedOrder) => {
@@ -90,6 +101,7 @@ const AdminOrdersTable = () => {
                     <FaEdit />
                   </button>
                   <button
+                    onClick={() => handleOrderStatusEmail(order)}
                     className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded"
                   >
                     <FaEnvelope />

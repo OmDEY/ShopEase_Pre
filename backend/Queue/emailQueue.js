@@ -1,6 +1,7 @@
 // Queue/email.queue.js
 const Queue = require('bull');
 require('dotenv').config();
+const { sendOrderStatusEmail } = require('./email.processor');
 
 const emailQueue = new Queue('email', {
     redis: {
@@ -31,5 +32,9 @@ module.exports = {
     addWelcomeEmail: (email, firstName) => {
         console.log(`📤 Adding email job to queue for: ${email}`);
         emailQueue.add('sendEmail', { email, firstName });
+    },
+    addOrderStatusEmail: (data) => {
+        console.log(`📤 Queueing order status email for: ${data.email}`);
+        emailQueue.add('orderStatusEmail', data);
     }
 };

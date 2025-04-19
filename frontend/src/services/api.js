@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-// const API_URL = "http://localhost:4000/api/";
+// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+const API_URL = "http://localhost:4000/api/";
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
   const response = await axios.post(
@@ -439,6 +439,19 @@ const fetchCategories = async () => {
   return response.data;
 };
 
+const sendOrderStatusEmail = async (orderId) => {
+  const response = await axios.post(
+    `${API_URL}orders/send-order-status-email/${orderId}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response;
+};
+
 export {
   fetchUserById,
   fetchHomePageBannerCarouselImages,
@@ -493,4 +506,5 @@ export {
   fetchPopularProducts,
   fetchFeaturedCategoriesProducts,
   fetchCategories,
+  sendOrderStatusEmail
 };

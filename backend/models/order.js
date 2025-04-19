@@ -9,7 +9,23 @@ const orderSchema = new mongoose.Schema({
       quantity: Number,
       price: Number,
       rating: { type: Number, default: 0 },
-      review: { type: String, default: '' }
+      review: { type: String, default: "" },
+
+      isReturnRequested: { type: Boolean, default: false },
+      returnStatus: {
+        type: String,
+        enum: [
+          "None",
+          "Requested",
+          "Approved",
+          "Rejected",
+          "Returned",
+          "Refunded",
+        ],
+        default: "None",
+      },
+      returnReason: { type: String, default: "" },
+      returnRequestDate: { type: Date },
     },
   ],
   shippingAddress: {
@@ -51,6 +67,7 @@ const orderSchema = new mongoose.Schema({
   trackingNumber: { type: String },
 
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("Order", orderSchema);
