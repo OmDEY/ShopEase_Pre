@@ -103,9 +103,86 @@ const sendOrderStatusEmail = async(req, res) => {
   }
 }
 
+const getAllReturnRequests = async (req, res) => {
+  try {
+    // Fetch only orders that have at least one item with a return requested
+    const ordersWithReturns = await Order.find({ "items.isReturnRequested": true })
+      .populate("user", "firstName lastName email")
+      .populate("items.product", "title brand price image");
+
+    const returnRequests = [];
+
+    for (const order of ordersWithReturns) {
+      for (const item of order.items) {
+        if (item.isReturnRequested) {
+          returnRequests.push({
+            orderId: order._id,
+            orderDate: order.createdAt,
+            user: order.user,
+            product: item.product,
+            quantity: item.quantity,
+            price: item.price,
+            returnStatus: item.returnStatus,
+            returnReason: item.returnReason,
+            additionalInfo: item.additionalInfo || "",
+            returnRequestDate: item.returnRequestDate,
+            returnImages: item.returnImages,
+            shippingAddress: order.shippingAddress,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({ returnRequests });
+  } catch (error) {
+    console.error("Failed to fetch return requests:", error);
+    res.status(500).json({ message: "Server error while fetching return requests" });
+  }
+};
+
+const updateReturnRequestStatus = async (req, res) => {
+  try {
+    const { orderId, productId } = req.params;
+    const { status } = req.body;
+
+    // Validate input
+    if (!["Requested", "Approved", "Rejected", "Returned", "Refunded"].includes(status)) {
+      return res.status(400).json({ message: "Invalid return status" });
+    }
+
+    // Find the order
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Find the specific product item in the order
+    const item = order.items.find(
+      (item) => item.product.toString() === productId
+    );
+
+    if (!item) return res.status(404).json({ message: "Product not found in order" });
+
+    // Update return status
+    item.returnStatus = status;
+
+    // If status is "Rejected", reset flags
+    if (status === "Rejected") {
+      item.isReturnRequested = false;
+    }
+
+    await order.save();
+
+    res.status(200).json({ message: "Return request updated successfully", updatedStatus: item.returnStatus });
+  } catch (error) {
+    console.error("Error updating return request status:", error);
+    res.status(500).json({ message: "Server error while updating return status" });
+  }
+};
+
 module.exports = {
   fetchOrders,
   fetchAllOrders,
   updateOrderStatus,
   sendOrderStatusEmail,
+  getAllReturnRequests,
+  updateReturnRequestStatus
 };

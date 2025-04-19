@@ -12,6 +12,7 @@ router.get('/fetchProductsFiltered', productController.fetchProductsFiltered);
 router.post('/submitProductReview', productController.submitProductReview);
 router.get('/fetchOptions', productController.fetchOptions);
 router.get('/fetchProductsOnFilter', productController.fetchProductsOnFilter);
+router.post('/userReturnProduct/:orderId/:itemId', imageUpload, productController.userReturnProduct);
 
 
 module.exports = router;

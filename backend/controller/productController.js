@@ -1,5 +1,6 @@
 const { Product } = require("../models/product");
 const Category = require("../models/categories");
+const Order = require("../models/order");
 const UserReview = require("../models/userReview"); // Adjust the path as necessary
 const cloudinary = require("../config/cloudinary");
 const mongoose = require("mongoose");
@@ -510,6 +511,56 @@ const fetchOptions = async (req, res) => {
   res.json(options);
 };
 
+const userReturnProduct = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const { reason, additionalInfo } = req.body;
+
+    console.log('req.params >>>', req.params)
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Find item in the order
+    const item = order.items.find((i) => {
+      console.log("i:", i._id.toString());
+      console.log("itemId:", itemId);
+      console.log("i._id.toString() === itemId.toString():", i._id.toString() === itemId.toString());
+      return i._id.toString() === itemId.toString();
+    });
+
+    if (!item) return res.status(404).json({ message: "Order item not found" });
+
+    // Handle uploaded images (if any)
+    const returnImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const url = await uploadImageToCloudinary(file);
+        returnImages.push({ url });
+      }
+    }
+
+    // Update item fields
+    item.isReturnRequested = true;
+    item.returnStatus = "Requested";
+    item.returnReason = reason || "";
+    item.returnRequestDate = new Date();
+    item.returnImages = returnImages;
+    item.additionalInfo = additionalInfo || "";
+
+    await order.save();
+
+    res.status(200).json({
+      message: "Return request submitted successfully",
+      item,
+    });
+  } catch (error) {
+    console.error("Return request error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+
 module.exports = {
   addProduct,
   getProducts,
@@ -520,4 +571,5 @@ module.exports = {
   submitProductReview,
   fetchOptions,
   fetchProductsOnFilter,
+  userReturnProduct
 };

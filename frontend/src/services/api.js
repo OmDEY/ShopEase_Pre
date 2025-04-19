@@ -452,6 +452,44 @@ const sendOrderStatusEmail = async (orderId) => {
   return response;
 };
 
+const userReturnProduct = async (orderId, itemId, formData) => {
+  const response = await axios.post(
+    `${API_URL}products/userReturnProduct/${orderId}/${itemId}`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response;
+};
+
+const getAllReturnRequests = async () => {
+  const response = await axios.get(
+    `${API_URL}orders/get-all-return-requests`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+const updateReturnRequestStatus = async (orderId, productId, status) => {
+  const response = await axios.post(
+    `${API_URL}orders/update-return-request-status/${orderId}/${productId}`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export {
   fetchUserById,
   fetchHomePageBannerCarouselImages,
@@ -506,5 +544,8 @@ export {
   fetchPopularProducts,
   fetchFeaturedCategoriesProducts,
   fetchCategories,
-  sendOrderStatusEmail
+  sendOrderStatusEmail,
+  userReturnProduct,
+  getAllReturnRequests,
+  updateReturnRequestStatus
 };

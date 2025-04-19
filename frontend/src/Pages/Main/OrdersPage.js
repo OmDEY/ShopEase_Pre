@@ -24,49 +24,55 @@ import {
   MdAttachFile,
 } from "react-icons/md";
 import { RiRefund2Line } from "react-icons/ri";
-import { fetchOrders } from "../../services/api";
+import { fetchOrders, userReturnProduct } from "../../services/api";
+import { toast } from "react-toastify";
 
 const ReturnModal = ({ isOpen, onClose, order, item, onSubmit }) => {
   const [reason, setReason] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState("");
+  const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!image) {
-      setPreview("");
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(image);
-    setPreview(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [image]);
-
   const handleImageChange = (e) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      setImage(null);
-      return;
-    }
-    setImage(e.target.files[0]);
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const newImages = Array.from(e.target.files).slice(0, 5 - images.length);
+    setImages(prev => [...prev, ...newImages]);
+  };
+
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!reason) return;
+  
     setIsSubmitting(true);
+  
     try {
-      await onSubmit({
-        orderId: order._id,
-        itemId: item.product._id,
-        reason,
-        additionalInfo,
-        image,
+      const formData = new FormData();
+      formData.append('reason', reason);
+      formData.append('additionalInfo', additionalInfo);
+  
+      images.forEach((image) => {
+        formData.append('images', image);
       });
+  
+      // Call the API function
+      const response = await userReturnProduct(order._id, item._id, formData);
+      
+      // Show success message
+      toast.success('Return request submitted successfully!');
+      
+      // Close modal and reset form
       onClose();
+      setReason("");
+      setAdditionalInfo("");
+      setImages([]);
     } catch (error) {
       console.error("Error submitting return:", error);
+      toast.error("Failed to submit return request. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,117 +81,173 @@ const ReturnModal = ({ isOpen, onClose, order, item, onSubmit }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <motion.div
-        className="bg-white rounded-xl shadow-xl w-full max-w-md"
+        className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
       >
-        <div className="p-6">
+        <div className="p-6 flex-1 overflow-auto">
           <h3 className="text-xl font-bold mb-4">Request Return</h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-6">
             You're requesting a return for: <strong>{item.product.title}</strong>
           </p>
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Reason for return</label>
-              <select
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                required
-              >
-                <option value="">Select a reason</option>
-                <option value="Damaged Product">Damaged Product</option>
-                <option value="Wrong Item">Wrong Item</option>
-                <option value="Not as Described">Not as Described</option>
-                <option value="No Longer Needed">No Longer Needed</option>
-                <option value="Quality Issues">Quality Issues</option>
-                <option value="Other">Other</option>
-              </select>
+          {/* Added id to form */}
+          <form id="return-form" onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+            {/* Left Column - Form Fields */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium">Reason for return*</label>
+                <select
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required
+                >
+                  <option value="">Select a reason</option>
+                  <option value="Damaged Product">Damaged Product</option>
+                  <option value="Wrong Item">Wrong Item</option>
+                  <option value="Not as Described">Not as Described</option>
+                  <option value="No Longer Needed">No Longer Needed</option>
+                  <option value="Quality Issues">Quality Issues</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Additional information
+                </label>
+                <textarea
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  rows="4"
+                  placeholder="Please provide more details about your return..."
+                  value={additionalInfo}
+                  onChange={(e) => setAdditionalInfo(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
-                Additional information
-              </label>
-              <textarea
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                rows="3"
-                placeholder="Please provide more details about your return..."
-                value={additionalInfo}
-                onChange={(e) => setAdditionalInfo(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
-                Upload image (optional)
-              </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                {preview ? (
-                  <div className="mb-2">
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="max-h-40 mx-auto mb-2"
-                    />
-                    <button
-                      type="button"
-                      className="text-sm text-red-500 hover:text-red-700"
-                      onClick={() => setImage(null)}
-                    >
-                      Remove Image
-                    </button>
-                  </div>
-                ) : (
-                  <label className="cursor-pointer">
-                    <div className="flex flex-col items-center justify-center">
-                      <MdAttachFile className="text-3xl text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        JPG, PNG up to 5MB
-                      </p>
-                    </div>
+            {/* Right Column - Image Upload */}
+            <div className="flex-1">
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Upload images (max 5)
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  <label className="cursor-pointer flex flex-col items-center justify-center">
+                    <MdAttachFile className="text-3xl text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      JPG, PNG up to 5MB each
+                    </p>
                     <input
                       type="file"
                       className="hidden"
                       accept="image/*"
                       onChange={handleImageChange}
+                      multiple
+                      disabled={images.length >= 5}
                     />
                   </label>
-                )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {images.length}/5 images selected
+                </p>
               </div>
-            </div>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
-                disabled={isSubmitting || !reason}
-              >
-                {isSubmitting ? (
-                  "Submitting..."
-                ) : (
-                  <>
-                    <RiRefund2Line /> Submit Return Request
-                  </>
-                )}
-              </button>
+              {/* Image Previews */}
+              {images.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-gray-700">Selected Images:</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                        <p className="text-xs text-gray-500 truncate mt-1">
+                          {image.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </form>
+        </div>
+
+        {/* Footer with action buttons */}
+        <div className="border-t px-6 py-4 bg-gray-50 flex justify-end gap-3">
+          <button
+            type="button"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="return-form"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+            disabled={isSubmitting || !reason}
+          >
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              <>
+                <RiRefund2Line /> Submit Return Request
+              </>
+            )}
+          </button>
         </div>
       </motion.div>
     </div>
@@ -291,16 +353,26 @@ const OrdersPage = () => {
     setReturnModalOpen(true);
   };
 
-  const handleReturnSubmit = async (returnData) => {
-    // In a real app, you would call your API here
-    console.log("Return request submitted:", returnData);
-    alert(
-      `Return request submitted for ${selectedReturnItem.product.title}. Our team will contact you shortly.`
-    );
-    // Reset the form
-    setReturnModalOpen(false);
-    setSelectedReturnItem(null);
-    setSelectedReturnOrder(null);
+  const handleReturnSubmit = async (formData) => {
+    try {
+      // In a real app, you would send this to your API
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      alert(
+        `Return request submitted for ${formData.get('itemId')}. Our team will contact you shortly.`
+      );
+      
+      // Reset the form
+      setReturnModalOpen(false);
+      setSelectedReturnItem(null);
+      setSelectedReturnOrder(null);
+    } catch (error) {
+      console.error("Error processing return:", error);
+      alert("There was an error submitting your return. Please try again.");
+    }
   };
 
   const getStatusIcon = (status) => {

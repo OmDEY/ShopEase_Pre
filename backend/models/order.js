@@ -10,24 +10,23 @@ const orderSchema = new mongoose.Schema({
       price: Number,
       rating: { type: Number, default: 0 },
       review: { type: String, default: "" },
-
+  
       isReturnRequested: { type: Boolean, default: false },
       returnStatus: {
         type: String,
-        enum: [
-          "None",
-          "Requested",
-          "Approved",
-          "Rejected",
-          "Returned",
-          "Refunded",
-        ],
+        enum: ["None", "Requested", "Approved", "Rejected", "Returned", "Refunded"],
         default: "None",
       },
       returnReason: { type: String, default: "" },
       returnRequestDate: { type: Date },
+      returnImages: [
+        {
+          url: { type: String, required: true },
+        },
+      ],
+      additionalInfo: { type: String, default: "" },
     },
-  ],
+  ], 
   shippingAddress: {
     fullName: String,
     phone: String,

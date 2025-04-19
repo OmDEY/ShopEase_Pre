@@ -257,6 +257,15 @@ const AdminSidebar = () => {
                   >
                     Daily Best Sales
                   </motion.li>
+                  <motion.li 
+                    onClick={() => navigate('/admin/adminReturns')}
+                    variants={menuItemVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
+                  >
+                    Returns
+                  </motion.li>
                 </motion.ul>
               )}
             </AnimatePresence>
