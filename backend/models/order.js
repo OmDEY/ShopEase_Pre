@@ -58,10 +58,19 @@ const orderSchema = new mongoose.Schema({
   estimatedDelivery: Date,
   cancellationDate: Date,
 
+  cancellation: {
+    isCancelled: { type: Boolean, default: false },
+    cancelledAt: { type: Date },
+    cancelledBy: {
+      type: String,
+      enum: ["User", "Admin"],
+    },
+    cancelReason: { type: String, default: "" },
+  },    
   // Invoice
   invoiceUrl: { type: String }, // Cloudinary URL
   invoicePublicId: { type: String }, // For deletion if needed
-
+  
   // Tracking
   trackingNumber: { type: String },
 

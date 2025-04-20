@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import OrderTrackingModal from "../../Components/Main/OrderTrackingModal";
+import CancelOrderModal from "../../Components/Main/CancelOrderModal";
+import { cancelOrder } from "../../services/api";
 import {
   FaSearch,
   FaBoxOpen,
@@ -35,36 +37,36 @@ const ReturnModal = ({ isOpen, onClose, order, item, onSubmit }) => {
 
   const handleImageChange = (e) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    
+
     const newImages = Array.from(e.target.files).slice(0, 5 - images.length);
-    setImages(prev => [...prev, ...newImages]);
+    setImages((prev) => [...prev, ...newImages]);
   };
 
   const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!reason) return;
-  
+
     setIsSubmitting(true);
-  
+
     try {
       const formData = new FormData();
-      formData.append('reason', reason);
-      formData.append('additionalInfo', additionalInfo);
-  
+      formData.append("reason", reason);
+      formData.append("additionalInfo", additionalInfo);
+
       images.forEach((image) => {
-        formData.append('images', image);
+        formData.append("images", image);
       });
-  
+
       // Call the API function
       const response = await userReturnProduct(order._id, item._id, formData);
-      
+
       // Show success message
-      toast.success('Return request submitted successfully!');
-      
+      toast.success("Return request submitted successfully!");
+
       // Close modal and reset form
       onClose();
       setReason("");
@@ -91,15 +93,22 @@ const ReturnModal = ({ isOpen, onClose, order, item, onSubmit }) => {
         <div className="p-6 flex-1 overflow-auto">
           <h3 className="text-xl font-bold mb-4">Request Return</h3>
           <p className="text-gray-600 mb-6">
-            You're requesting a return for: <strong>{item.product.title}</strong>
+            You're requesting a return for:{" "}
+            <strong>{item.product.title}</strong>
           </p>
 
           {/* Added id to form */}
-          <form id="return-form" onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+          <form
+            id="return-form"
+            onSubmit={handleSubmit}
+            className="flex flex-col md:flex-row gap-6"
+          >
             {/* Left Column - Form Fields */}
             <div className="flex-1 space-y-4">
               <div>
-                <label className="block text-gray-700 mb-2 font-medium">Reason for return*</label>
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Reason for return*
+                </label>
                 <select
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   value={reason}
@@ -163,7 +172,9 @@ const ReturnModal = ({ isOpen, onClose, order, item, onSubmit }) => {
               {/* Image Previews */}
               {images.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-gray-700">Selected Images:</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Selected Images:
+                  </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {images.map((image, index) => (
                       <div key={index} className="relative group">
@@ -269,15 +280,50 @@ const OrdersPage = () => {
   const [selectedReturnItem, setSelectedReturnItem] = useState(null);
   const [selectedReturnOrder, setSelectedReturnOrder] = useState(null);
 
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedCancelOrder, setSelectedCancelOrder] = useState(null);
+
+  const handleCancelOrder = async (orderId, cancelReason, additionalInfo) => {
+    try {
+      await cancelOrder(orderId, { cancelReason, additionalInfo });
+
+      // Update the local state to reflect the cancellation
+      // setOrdersData((prev) =>
+      //   prev.map((order) =>
+      //     order._id === orderId
+      //       ? {
+      //           ...order,
+      //           orderStatus: "Cancelled",
+      //           cancellation: {
+      //             isCancelled: true,
+      //             cancelledAt: new Date(),
+      //             cancelledBy: "User",
+      //             cancelReason: reason,
+      //           },
+      //         }
+      //       : order
+      //   )
+      // );
+
+      await fetchOrdersData();
+
+      toast.success("Order cancelled successfully!");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order. Please try again.");
+      throw error;
+    }
+  };
+
+  const fetchOrdersData = async () => {
+    try {
+      const response = await fetchOrders();
+      setOrdersData(response.orders || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
   useEffect(() => {
-    const fetchOrdersData = async () => {
-      try {
-        const response = await fetchOrders();
-        setOrdersData(response.orders || []);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      }
-    };
     fetchOrdersData();
   }, []);
 
@@ -315,7 +361,10 @@ const OrdersPage = () => {
   // Pagination logic
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder
+  );
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -360,11 +409,13 @@ const OrdersPage = () => {
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      
+
       alert(
-        `Return request submitted for ${formData.get('itemId')}. Our team will contact you shortly.`
+        `Return request submitted for ${formData.get(
+          "itemId"
+        )}. Our team will contact you shortly.`
       );
-      
+
       // Reset the form
       setReturnModalOpen(false);
       setSelectedReturnItem(null);
@@ -587,13 +638,13 @@ const OrdersPage = () => {
                             Shipping Address
                           </h4>
                           <p className="text-gray-600">
-                            {order.shippingAddress?.name}
+                            {order.user.shippingAddress?.type}
                           </p>
                           <p className="text-gray-600">
-                            {order.shippingAddress?.address},{" "}
-                            {order.shippingAddress?.city},{" "}
-                            {order.shippingAddress?.state},{" "}
-                            {order.shippingAddress?.pincode}
+                            {order.user.shippingAddress?.addressLine1},{" "}
+                            {order.user.shippingAddress?.city},{" "}
+                            {order.user.shippingAddress?.state},{" "}
+                            {order.user.shippingAddress?.postalCode}
                           </p>
                         </div>
 
@@ -687,6 +738,39 @@ const OrdersPage = () => {
                                 ₹{(item.price * item.quantity).toFixed(2)}
                               </p>
 
+                              {item.isReturnRequested && (
+                                <div className="mt-2 text-sm">
+                                  <p
+                                    className={`font-medium ${
+                                      item.returnStatus === "Approved"
+                                        ? "text-green-600"
+                                        : item.returnStatus === "Rejected"
+                                        ? "text-red-600"
+                                        : item.returnStatus === "Requested"
+                                        ? "text-yellow-600"
+                                        : item.returnStatus === "Refunded"
+                                        ? "text-purple-600"
+                                        : "text-gray-600"
+                                    }`}
+                                  >
+                                    Return: {item.returnStatus}
+                                    {item.returnRequestDate && (
+                                      <span className="text-xs block">
+                                        Requested on{" "}
+                                        {new Date(
+                                          item.returnRequestDate
+                                        ).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </p>
+                                  {item.returnReason && (
+                                    <p className="text-xs text-gray-500">
+                                      Reason: {item.returnReason}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
                               {order.orderStatus === "Delivered" && (
                                 <div className="flex flex-col gap-2 w-full md:w-64">
                                   {!itemRatings[`${order._id}-${idx}`] ? (
@@ -727,7 +811,9 @@ const OrdersPage = () => {
                                         <div className="flex items-center">
                                           {[...Array(5)].map((_, i) =>
                                             i <
-                                            itemRatings[`${order._id}-${idx}`] ? (
+                                            itemRatings[
+                                              `${order._id}-${idx}`
+                                            ] ? (
                                               <FaStar
                                                 key={i}
                                                 className="text-yellow-400"
@@ -755,8 +841,9 @@ const OrdersPage = () => {
                                         <div className="mt-2">
                                           <textarea
                                             value={
-                                              itemReviews[`${order._id}-${idx}`] ||
-                                              ""
+                                              itemReviews[
+                                                `${order._id}-${idx}`
+                                              ] || ""
                                             }
                                             onChange={(e) =>
                                               handleReviewChange(
@@ -773,7 +860,11 @@ const OrdersPage = () => {
                                             <button
                                               className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
                                               onClick={() => {
-                                                handleRateItem(order._id, idx, 0);
+                                                handleRateItem(
+                                                  order._id,
+                                                  idx,
+                                                  0
+                                                );
                                                 handleReviewChange(
                                                   order._id,
                                                   idx,
@@ -798,6 +889,24 @@ const OrdersPage = () => {
                                   )}
                                 </div>
                               )}
+
+                              {order.orderStatus === "Delivered" &&
+                                order.items.some(
+                                  (item) =>
+                                    isReturnEligible(order.updatedAt) &&
+                                    !item.isReturnRequested
+                                ) && (
+                                  <button
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2 shadow-md"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // You'll need to decide which item to return here
+                                      handleReturnItem(order, order.items[0]);
+                                    }}
+                                  >
+                                    <RiRefund2Line /> Return Item
+                                  </button>
+                                )}
                             </div>
                           </div>
                         ))}
@@ -813,17 +922,6 @@ const OrdersPage = () => {
                             <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-md">
                               <MdOutlineRateReview /> Write Review
                             </button>
-                            {isReturnEligible(order.updatedAt) && (
-                              <button
-                                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2 shadow-md"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleReturnItem(order, order.items[0]); // For simplicity, using first item
-                                }}
-                              >
-                                <RiRefund2Line /> Return Item
-                              </button>
-                            )}
                           </>
                         )}
                         {order.orderStatus === "Shipped" && (
@@ -838,7 +936,14 @@ const OrdersPage = () => {
                           </button>
                         )}
                         {order.orderStatus === "Processing" && (
-                          <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 shadow-md">
+                          <button
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 shadow-md"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCancelOrder(order);
+                              setCancelModalOpen(true);
+                            }}
+                          >
                             <MdCancel /> Cancel Order
                           </button>
                         )}
@@ -903,6 +1008,12 @@ const OrdersPage = () => {
           order={selectedReturnOrder}
           item={selectedReturnItem}
           onSubmit={handleReturnSubmit}
+        />
+        <CancelOrderModal
+          isOpen={cancelModalOpen}
+          onClose={() => setCancelModalOpen(false)}
+          order={selectedCancelOrder}
+          onCancel={handleCancelOrder}
         />
       </div>
     </div>

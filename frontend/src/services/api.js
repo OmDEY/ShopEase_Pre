@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
-// const API_URL = "http://localhost:4000/api/";
+// const API_URL = process.env.REACT_APP_API_URL || 'https://shopease-pre.onrender.com/api/';
+const API_URL = "http://localhost:4000/api/";
 
 const uploadHomePageBannerCarouselImages = async (formData) => {
   const response = await axios.post(
@@ -490,6 +490,69 @@ const updateReturnRequestStatus = async (orderId, productId, status) => {
   return response.data;
 };
 
+const cancelOrder = async (orderId) => {
+  const response = await axios.post(
+    `${API_URL}orders/cancel-order/${orderId}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+const fetchCancelledOrders = async () => {
+  const response = await axios.get(
+    `${API_URL}orders/fetch-cancelled-orders`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+const processRefund = async (orderId) => {
+  const response = await axios.put(
+    `${API_URL}orders/process-refund/${orderId}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response;
+};
+
+const restockCancelledProducts = async (orderId) => {
+  const response = await axios.put(
+    `${API_URL}orders/restock-items/${orderId}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response;
+};
+
+const deleteCancelledOrder = async (orderId) => {
+  const response = await axios.delete(
+    `${API_URL}orders/delete-cancelled-order/${orderId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response;
+};
+
 export {
   fetchUserById,
   fetchHomePageBannerCarouselImages,
@@ -547,5 +610,10 @@ export {
   sendOrderStatusEmail,
   userReturnProduct,
   getAllReturnRequests,
-  updateReturnRequestStatus
+  updateReturnRequestStatus,
+  cancelOrder,
+  fetchCancelledOrders,
+  processRefund,
+  restockCancelledProducts,
+  deleteCancelledOrder,
 };

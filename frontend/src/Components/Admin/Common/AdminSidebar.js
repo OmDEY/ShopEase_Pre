@@ -155,18 +155,62 @@ const AdminSidebar = () => {
             <span className="font-medium">Customers</span>
           </motion.li>
 
-          <motion.li 
-            onClick={() => navigate('/admin/adminOrders')}
-            variants={menuItemVariants}
+          <motion.div
             initial="hidden"
             animate="visible"
-            whileHover="hover"
-            whileTap="tap"
-            className="p-3 rounded-lg flex items-center gap-4 cursor-pointer"
+            variants={menuItemVariants}
           >
-            <FaClipboardList className="text-yellow-400 text-lg" />
-            <span className="font-medium">Orders</span>
-          </motion.li>
+            <div 
+              onClick={() => toggleSection('orders')}
+              className="p-3 rounded-lg flex items-center justify-between gap-4 cursor-pointer hover:bg-gray-700"
+            >
+              <div className="flex items-center gap-4">
+                <FaClipboardList className="text-yellow-400 text-lg" />
+                <span className="font-medium">Orders</span>
+              </div>
+              {expandedSections.orders ? <FaChevronDown className="text-xs" /> : <FaChevronRight className="text-xs" />}
+            </div>
+
+            <AnimatePresence>
+              {expandedSections.orders && (
+                <motion.ul
+                  variants={sectionVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="ml-12 space-y-2 mt-2"
+                >
+                  <motion.li 
+                    onClick={() => navigate('/admin/adminOrders')}
+                    variants={menuItemVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
+                  >
+                    All Orders
+                  </motion.li>
+                  <motion.li 
+                    onClick={() => navigate('/admin/adminReturns')}
+                    variants={menuItemVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
+                  >
+                    Returns
+                  </motion.li>
+                  <motion.li 
+                    onClick={() => navigate('/admin/adminCancelledOrders')}
+                    variants={menuItemVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
+                  >
+                    Cancelled Orders
+                  </motion.li>
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Promotions Section */}
           <motion.div
@@ -256,15 +300,6 @@ const AdminSidebar = () => {
                     className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
                   >
                     Daily Best Sales
-                  </motion.li>
-                  <motion.li 
-                    onClick={() => navigate('/admin/adminReturns')}
-                    variants={menuItemVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                    className="p-2 rounded-lg cursor-pointer text-sm hover:bg-gray-700"
-                  >
-                    Returns
                   </motion.li>
                 </motion.ul>
               )}

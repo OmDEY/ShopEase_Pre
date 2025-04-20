@@ -16,6 +16,7 @@ import AdminFeaturedProductsPage from '../Pages/Admin/AdminFeaturedProductsPage'
 import AdminPopularProductsAddPage from '../Pages/Admin/AdminPopularProductsAddPage';
 import AdminDailyBestSalesPage from '../Pages/Admin/AdminDailyBestSalesPage';
 import AdminReturnsPage from '../Pages/Admin/AdminReturnsPage';
+import AdminCancelledOrdersPage from '../Pages/Admin/AdminCancelledOrdersPage';
 
 const AdminRoutes = () => {
   const { isAdmin } = useContext(SearchContext);
@@ -35,6 +36,7 @@ const AdminRoutes = () => {
         <Route path="/popularProductsAdd" element={<AdminPopularProductsAddPage/>} />
         <Route path="/dailyBestSales" element={<AdminDailyBestSalesPage/>} />
         <Route path="/adminReturns" element={<AdminReturnsPage/>} />
+        <Route path="/adminCancelledOrders" element={<AdminCancelledOrdersPage/>} />
       </Routes>
     </ProtectedRoute>
   ) : 
