@@ -4,6 +4,7 @@ const Order = require("../models/order");
 const generateInvoice = require("../utils/generateInvoice");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
+const fs = require("fs");
 
 // Create Order
 const createOrder = async (req, res) => {
@@ -16,9 +17,9 @@ const createOrder = async (req, res) => {
       receipt,
     };
 
-    console.log('options set going to hit the razorpay api')
+    console.log("options set going to hit the razorpay api");
     const order = await razorpayInstance.orders.create(options);
-    console.log('got the response from razorpay api >>>', order)
+    console.log("got the response from razorpay api >>>", order);
 
     res.status(200).json({
       success: true,
@@ -33,52 +34,48 @@ const createOrder = async (req, res) => {
 // Verify Payment Signature
 const verifyPayment = async (req, res) => {
   try {
-    const {
-      data,
-      userId,
-      items,
-      address,
-      totalAmount,
-    } = req.body;
+    const { data, userId, items, address, totalAmount } = req.body;
 
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
-    
     const secret = process.env.RAZORPAY_KEY_SECRET;
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
     const expectedSignature = crypto
-    .createHmac("sha256", secret)
-    .update(body)
-    .digest("hex");
-    
-    const isAuthentic = expectedSignature === razorpay_signature;
-    
-    console.log('isAuthentic', isAuthentic)
-    console.log('userId', userId)
-    console.log('items', items)
-    console.log('address', address)
-    console.log('totalAmount', totalAmount)
-    console.log('razorpay_order_id', razorpay_order_id)
-    console.log('razorpay_payment_id', razorpay_payment_id)
-    console.log('razorpay_signature', razorpay_signature)
-    
-    console.log('expectedSignature', expectedSignature)
+      .createHmac("sha256", secret)
+      .update(body)
+      .digest("hex");
 
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    console.log("isAuthentic", isAuthentic);
+    console.log("userId", userId);
+    console.log("items", items);
+    console.log("address", address);
+    console.log("totalAmount", totalAmount);
+    console.log("razorpay_order_id", razorpay_order_id);
+    console.log("razorpay_payment_id", razorpay_payment_id);
+    console.log("razorpay_signature", razorpay_signature);
+
+    console.log("expectedSignature", expectedSignature);
 
     if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ success: false, message: "No items in the order." });
-    }    
-    
+      return res
+        .status(400)
+        .json({ success: false, message: "No items in the order." });
+    }
+
     if (!isAuthentic) {
-      return res.status(400).json({ success: false, message: "Payment verification failed" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Payment verification failed" });
     }
 
     const cleanedItems = items.map((item) => ({
       product: item.product._id || item.product, // in case it's already just an ID
       quantity: item.quantity,
       price: item.price,
-    }));    
+    }));
 
     // ✅ Step 1: Create Order
     const order = await Order.create({
@@ -89,10 +86,19 @@ const verifyPayment = async (req, res) => {
       paymentMethod: "Razorpay",
       paymentStatus: "Paid",
       orderStatus: "Processing",
-    });    
+    });
 
     // Populate product info for invoice
-    await order.populate("items.product");
+    // ✅ Step 2: Populate product info for invoice
+    await order.populate({
+      path: "items.product",
+      model: "Product",
+    });
+
+    // ✅ Step 3: Populate user info
+    await order.populate("user");
+
+    console.log("order >>>", order);
 
     // ✅ Step 2: Generate PDF invoice
     const pdfBuffer = await generateInvoice(order);
@@ -102,10 +108,9 @@ const verifyPayment = async (req, res) => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            resource_type: "raw",
+            resource_type: "raw", // ✅ This is critical
             folder: "ecommerce_invoices",
             public_id: `invoice_${orderId}`,
-            format: "pdf", // ✅ Ensures Cloudinary knows it's a PDF
             use_filename: true,
             unique_filename: false,
             overwrite: true,
@@ -115,9 +120,12 @@ const verifyPayment = async (req, res) => {
             resolve(result);
           }
         );
+
         streamifier.createReadStream(buffer).pipe(stream);
       });
     };
+
+    // fs.writeFileSync(`invoice_${order._id}.pdf`, pdfBuffer);
 
     const result = await streamUpload(pdfBuffer, order._id);
 
@@ -126,13 +134,11 @@ const verifyPayment = async (req, res) => {
     await order.save();
 
     res.json({ success: true, order });
-
   } catch (error) {
     console.error("verifyPayment error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
-
 
 // Create COD Order
 const createCODOrder = async (req, res) => {
@@ -140,7 +146,9 @@ const createCODOrder = async (req, res) => {
     const { userId, items, shippingAddress, totalAmount } = req.body;
 
     if (!userId || !items || !shippingAddress || !totalAmount) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
     }
 
     const order = await Order.create({
@@ -185,10 +193,11 @@ const createCODOrder = async (req, res) => {
     res.json({ success: true, order });
   } catch (error) {
     console.error("createCODOrder error:", error);
-    res.status(500).json({ success: false, message: "Failed to create COD order" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to create COD order" });
   }
 };
-
 
 module.exports = {
   createOrder,

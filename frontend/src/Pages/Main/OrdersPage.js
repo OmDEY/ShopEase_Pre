@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import {
   BsArrowRepeat,
+  BsBoxArrowDown,
   BsBoxArrowInUpRight,
   BsClockHistory,
 } from "react-icons/bs";
@@ -283,6 +284,25 @@ const OrdersPage = () => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedCancelOrder, setSelectedCancelOrder] = useState(null);
 
+  const downloadPdf = async (url, filename = "invoice.pdf") => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      const objectUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Failed to download PDF:", error);
+      alert("Failed to download invoice.");
+    }
+  };
+
   const handleCancelOrder = async (orderId, cancelReason, additionalInfo) => {
     try {
       await cancelOrder(orderId, { cancelReason, additionalInfo });
@@ -370,6 +390,7 @@ const OrdersPage = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleRateItem = (orderId, itemIndex, rating) => {
+    console.log('Rating changed for order', orderId, 'item', itemIndex, ':', rating);
     setItemRatings((prev) => ({
       ...prev,
       [`${orderId}-${itemIndex}`]: rating,
@@ -377,6 +398,7 @@ const OrdersPage = () => {
   };
 
   const handleReviewChange = (orderId, itemIndex, review) => {
+    console.log('Review changed for order', orderId, 'item', itemIndex, ':', review);
     setItemReviews((prev) => ({
       ...prev,
       [`${orderId}-${itemIndex}`]: review,
@@ -653,16 +675,17 @@ const OrdersPage = () => {
                             Payment Method
                           </h4>
                           <p className="text-gray-600">{order.paymentMethod}</p>
+
                           {order.orderStatus === "Delivered" && (
-                            <a
-                              href="#"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-2 text-indigo-600 text-sm hover:underline flex items-center"
+                            <button
+                              onClick={() =>
+                                downloadPdf(order.invoiceUrl, "invoice.pdf")
+                              }
+                              className="text-indigo-600 hover:underline flex items-center"
                             >
-                              View invoice{" "}
-                              <BsBoxArrowInUpRight className="ml-1" />
-                            </a>
+                              Download Invoice{" "}
+                              <BsBoxArrowDown className="ml-1" />
+                            </button>
                           )}
                         </div>
 
@@ -889,24 +912,6 @@ const OrdersPage = () => {
                                   )}
                                 </div>
                               )}
-
-                              {order.orderStatus === "Delivered" &&
-                                order.items.some(
-                                  (item) =>
-                                    isReturnEligible(order.updatedAt) &&
-                                    !item.isReturnRequested
-                                ) && (
-                                  <button
-                                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2 shadow-md"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      // You'll need to decide which item to return here
-                                      handleReturnItem(order, order.items[0]);
-                                    }}
-                                  >
-                                    <RiRefund2Line /> Return Item
-                                  </button>
-                                )}
                             </div>
                           </div>
                         ))}
@@ -924,6 +929,23 @@ const OrdersPage = () => {
                             </button>
                           </>
                         )}
+                        {order.orderStatus === "Delivered" &&
+                          order.items.some(
+                            (item) =>
+                              isReturnEligible(order.updatedAt) &&
+                              !item.isReturnRequested
+                          ) && (
+                            <button
+                              className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2 shadow-md"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // You'll need to decide which item to return here
+                                handleReturnItem(order, order.items[0]);
+                              }}
+                            >
+                              <RiRefund2Line /> Return Item
+                            </button>
+                          )}
                         {order.orderStatus === "Shipped" && (
                           <button
                             onClick={(e) => {
