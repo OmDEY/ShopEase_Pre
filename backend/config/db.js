@@ -5,8 +5,7 @@ const mongoose = require('mongoose');
 
 async function connect() {
   // Use the environment variables in your connection string
-  console.log('process.env.MONGO_URI >>>> ', process.env.USER);
-  const mongoUri = process.env.MONGO_URI.replace('${USER}', process.env.USER).replace('${PASS}', process.env.PASS);
+  const mongoUri = process.env.MONGO_URI.replace('${USER}', process.env.MONGO_USER).replace('${PASS}', process.env.MONGO_PASS);
   try {
     await mongoose.connect(mongoUri);
     console.log('Connected to the database');
