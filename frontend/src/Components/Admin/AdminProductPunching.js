@@ -292,7 +292,7 @@ const AdminProductPunching = () => {
               </div>
 
               {/* Colors */}
-              <div>
+              {/*<div>
                 <label className="block text-gray-300 font-semibold">
                   Colors
                 </label>
@@ -321,10 +321,10 @@ const AdminProductPunching = () => {
                   >
                     Add
                   </button>
-                </div>
+                  </div>*/}
 
                 {/* Display Selected Colors */}
-                <div className="mt-2 flex flex-wrap">
+                {/*<div className="mt-2 flex flex-wrap">
                   {colors.map((color, index) => (
                     <span
                       key={index}
@@ -342,7 +342,7 @@ const AdminProductPunching = () => {
                     </span>
                   ))}
                 </div>
-              </div>
+              </div>*/}
             </div>
 
             {/* Right Side: Price, Category, Image Upload */}

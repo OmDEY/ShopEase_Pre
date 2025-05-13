@@ -8,7 +8,7 @@ import {
   FiCheck,
   FiEdit2,
 } from "react-icons/fi";
-import { fetchCart, fetchUserById, createOrder, verifyPayment, removeItemFromCart } from "../../services/api";
+import { fetchCart, fetchUserById, createOrder, verifyPayment, removeItemFromCart, createCODOrder } from "../../services/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -70,9 +70,29 @@ const CheckoutPage = () => {
     }
   };
 
-  const handlePlaceOrder = () => {
+  const handleCODOrder = async (cartItems, address) => {
+    const userId = localStorage.getItem("userId");
+    const orderData = {
+      userId,
+      items: cartItems,
+      shippingAddress: address,
+      totalAmount: calculateTotal()
+    };
+    try {
+      await createCODOrder(orderData);
+      navigate("/payment-success");
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast.error("Error creating order. Please try again later.");
+    }
+  };
+
+  const handlePlaceOrder = (cartItems, address) => {
     if (selectedPayment === "razorpay") {
       handleRazorpayPayment();
+    }
+    if (selectedPayment === "cod") {
+      handleCODOrder(cartItems, address);
     }
   };
 
@@ -384,7 +404,7 @@ const CheckoutPage = () => {
 
               <div className="p-6 space-y-6">
                 <div className="space-y-4">
-                  <PaymentMethodCard
+                  {/* <PaymentMethodCard
                     icon={<FiCreditCard size={20} />}
                     title="Credit/Debit Card"
                     description="Pay with Visa, Mastercard, or other cards"
@@ -404,7 +424,7 @@ const CheckoutPage = () => {
                     description="Direct bank transfer"
                     value="netbanking"
                     selected={selectedPayment === "netbanking"}
-                  />
+                  /> */}
                   <PaymentMethodCard
                     icon={<FiTruck size={20} />}
                     title="Cash on Delivery"
@@ -688,7 +708,7 @@ const CheckoutPage = () => {
                       : "bg-indigo-600 hover:bg-indigo-700"
                   } transition-colors`}
                   disabled={!selectedPayment}
-                  onClick={handlePlaceOrder}
+                  onClick={() => handlePlaceOrder(cartItems, address)}
                 >
                   <div className="flex items-center justify-center">
                     <FiLock className="mr-2" />

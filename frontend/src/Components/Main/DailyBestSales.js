@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { fetchDailyBestSalesProducts } from "../../services/api";
+import { fetchDailyBestSalesProducts, addToCart } from "../../services/api";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const DailyBestSales = () => {
   const [productData, setProductData] = useState({});
   const [activeCategory, setActiveCategory] = useState("featured");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -20,6 +23,15 @@ const DailyBestSales = () => {
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      await addToCart(productId, 1);
+      toast.success("Added to cart");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+    }
   };
 
   return (
@@ -45,7 +57,7 @@ const DailyBestSales = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 flex flex-col justify-center items-start p-6 text-white">
             <h2 className="text-3xl font-bold mb-4">Daily Best Sales</h2>
             <p className="text-base mb-6">Discover our best daily deals and save big on your favorite products!</p>
-            <button className="bg-yellow-500 text-white py-2 px-6 rounded-full transition-transform transform hover:scale-110">Shop Now</button>
+            <button onClick={() => navigate("/deals-of-the-day")} className="bg-yellow-500 text-white py-2 px-6 rounded-full transition-transform transform hover:scale-110">Shop Now</button>
           </div>
         </div>
 
@@ -65,8 +77,8 @@ const DailyBestSales = () => {
               <h3 className="text-lg font-bold">{product.title}</h3>
               <p className="text-sm text-gray-700 mt-2">${product.price.toFixed(2)}</p>
               <div className="mt-4 flex space-x-2">
-                <button className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600">Add to Cart</button>
-                <button className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600">Buy Now</button>
+                <button onClick={() => handleAddToCart(product._id)} className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600">Add to Cart</button>
+                {/* <button className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600">Buy Now</button> */}
               </div>
             </div>
           </div>

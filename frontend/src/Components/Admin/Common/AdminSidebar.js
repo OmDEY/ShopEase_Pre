@@ -306,7 +306,7 @@ const AdminSidebar = () => {
             </AnimatePresence>
           </motion.div>
 
-          <motion.li 
+          {/* <motion.li 
             onClick={() => navigate('/admin/adminSettings')}
             variants={menuItemVariants}
             initial="hidden"
@@ -317,7 +317,7 @@ const AdminSidebar = () => {
           >
             <FaCog className="text-gray-400 text-lg" />
             <span className="font-medium">Settings</span>
-          </motion.li>
+          </motion.li> */}
         </ul>
       </div>
 

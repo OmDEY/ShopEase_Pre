@@ -266,7 +266,7 @@ const ProductListingPage = () => {
                                     ({totalProducts} products)
                                 </span>
                             </h2>
-                            <div className="flex items-center space-x-4">
+                            {/* <div className="flex items-center space-x-4">
                                 <div className="flex items-center">
                                     <span className="text-sm text-gray-600 mr-2">Sort by:</span>
                                     <select className="bg-white border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -277,7 +277,7 @@ const ProductListingPage = () => {
                                         <option>Best Rated</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         {isLoading ? (

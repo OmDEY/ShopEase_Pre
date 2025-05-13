@@ -148,12 +148,12 @@ const AuthPage = () => {
         </motion.form>
 
         {/* Social Login */}
-        <div className="flex items-center justify-center space-x-4 mt-6">
+        {/* <div className="flex items-center justify-center space-x-4 mt-6">
           <p className="text-gray-500">Or continue with</p>
           <FaGoogle className="text-red-600 text-2xl cursor-pointer hover:scale-110 transition-transform" />
           <FaFacebook className="text-blue-600 text-2xl cursor-pointer hover:scale-110 transition-transform" />
           <FaTwitter className="text-blue-400 text-2xl cursor-pointer hover:scale-110 transition-transform" />
-        </div>
+        </div> */}
 
         {/* Toggle Auth Mode */}
         <div className="text-center mt-8">

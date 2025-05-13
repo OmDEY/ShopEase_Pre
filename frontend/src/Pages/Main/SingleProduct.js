@@ -437,10 +437,10 @@ const SingleProductDisplay = () => {
           ))}
         </div>
 
-        <hr className="my-12" />
+        {/* <hr className="my-12" /> */}
 
         {/* Product Comparison With Similar Products */}
-        <div className="mt-12 bg-white p-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+        {/* <div className="mt-12 bg-white p-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
           <h2 className="text-2xl font-bold mb-6">Product Comparison</h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-200">
@@ -518,7 +518,7 @@ const SingleProductDisplay = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
 
         <hr className="my-12" />
 

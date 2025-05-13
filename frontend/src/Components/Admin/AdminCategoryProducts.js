@@ -51,7 +51,7 @@ const AdminCategoryProducts = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 {/* Featured Categories Section */}
-                <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                {/* <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     <h2 className="text-2xl font-semibold text-white mb-6">Featured Categories</h2>
                     <div className="space-y-6">
                         <input
@@ -85,7 +85,7 @@ const AdminCategoryProducts = () => {
                     >
                         Save
                     </button>
-                </div>
+                </div> */}
 
                 {/* Banner Carousel Section */}
                 <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
@@ -125,7 +125,7 @@ const AdminCategoryProducts = () => {
                 </div>
 
                 {/* Daily Best Sales Section */}
-                <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                {/* <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     <h2 className="text-2xl font-semibold text-white mb-6">Daily Best Sales</h2>
                     <div className="space-y-6">
                         <input
@@ -168,10 +168,10 @@ const AdminCategoryProducts = () => {
                     >
                         Save
                     </button>
-                </div>
+                </div> */}
 
                 {/* Deal of the Day Section */}
-                <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                {/* <div className="bg-gray-800 shadow-lg rounded-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     <h2 className="text-2xl font-semibold text-white mb-6">Deal of the Day</h2>
                     <div className="space-y-6">
                         <input
@@ -219,7 +219,7 @@ const AdminCategoryProducts = () => {
                     >
                         Save
                     </button>
-                </div>
+                </div> */}
 
             </div>
         </div>

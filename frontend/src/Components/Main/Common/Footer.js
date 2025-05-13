@@ -1,7 +1,22 @@
 import React from 'react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { useState } from 'react';
+import { addToNewsletterEmail } from '../../../services/api';
+import { toast } from 'react-toastify';
 
 const Footer = () => {
+    const [user, setUser] = useState("");
+    const [email, setEmail] = useState("");
+    const handleSubscribe = async (email) => {
+        console.log('email >>>> ', email)
+        const response = await addToNewsletterEmail({email: email, firstName: "User"});
+        if (response.status === 200) {
+          toast.success('Subscribed successfully');
+        }
+        else {
+          toast.error('Failed to subscribe');
+        }
+      };
     return (
         <footer className="bg-gray-900 text-white py-12 px-6 md:px-16">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-8">
@@ -21,10 +36,10 @@ const Footer = () => {
                 <div>
                     <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
                     <ul className="space-y-2">
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">About Us</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Contact Us</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Shop</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">FAQ</a></li>
+                        <li><a href="/about" className="text-gray-400 hover:text-white transition-all">About Us</a></li>
+                        <li><a href="/contact" className="text-gray-400 hover:text-white transition-all">Contact Us</a></li>
+                        <li><a href="/" className="text-gray-400 hover:text-white transition-all">Shop</a></li>
+                        <li><a href="/contact" className="text-gray-400 hover:text-white transition-all">FAQ</a></li>
                     </ul>
                 </div>
 
@@ -32,10 +47,10 @@ const Footer = () => {
                 <div>
                     <h4 className="text-xl font-semibold mb-4">Customer Service</h4>
                     <ul className="space-y-2">
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Help Center</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Returns</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Track Order</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white transition-all">Shipping & Delivery</a></li>
+                        <li><a href="/contact" className="text-gray-400 hover:text-white transition-all">Help Center</a></li>
+                        {/* <li><a href="#" className="text-gray-400 hover:text-white transition-all">Returns</a></li> */}
+                        <li><a href="/orders" className="text-gray-400 hover:text-white transition-all">Track Order</a></li>
+                        {/* <li><a href="/contact" className="text-gray-400 hover:text-white transition-all">Shipping & Delivery</a></li> */}
                     </ul>
                 </div>
 
@@ -46,10 +61,13 @@ const Footer = () => {
                     <div className="relative flex">
                         <input
                             type="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
                             placeholder="Enter your email"
-                            className="w-full p-3 rounded-l-full border-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full text-black p-3 rounded-l-full border-none focus:ring-2 focus:ring-blue-400"
                         />
                         <button
+                            onClick={() => handleSubscribe(email)}
                             className="bg-blue-600 text-white py-3 px-6 rounded-r-full hover:bg-blue-700 transition-all"
                         >
                             Subscribe

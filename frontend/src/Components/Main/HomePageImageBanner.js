@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import SliderComponent from 'react-slick'; // Renamed import
-import { FaEnvelope } from 'react-icons/fa';
-import axios from 'axios';
-import { fetchHomePageBannerCarouselImages } from '../../services/api';
+import SliderComponent from 'react-slick';
+import { fetchHomePageBannerCarouselImages, addToNewsletterEmail } from '../../services/api';
+import { toast } from 'react-toastify';
 
 // Sample images for the banner
 // const bannerImages = [
@@ -14,6 +13,7 @@ import { fetchHomePageBannerCarouselImages } from '../../services/api';
 const HomePageImageBanner = () => {
 
   const [bannerImages, setBannerImages] = useState([]);
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
     fetchBannerImages();
@@ -29,6 +29,16 @@ const HomePageImageBanner = () => {
       setBannerImages(response.data[0].imageUrls);
     } catch (error) {
       console.error('Error fetching banner images:', error);
+    }
+  };
+
+  const handleSubscribe = async (email) => {
+    const response = await addToNewsletterEmail({email: email, firstName: "User"});
+    if (response.status === 200) {
+      toast.success('Subscribed successfully');
+    }
+    else {
+      toast.error('Failed to subscribe');
     }
   };
 
@@ -66,12 +76,14 @@ const HomePageImageBanner = () => {
                   <div className="flex-1">
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full text-black p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <button
-                    type="submit"
+                    onClick = {() => handleSubscribe(email)}
                     className="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition-all duration-300 ease-in-out"
                   >
                     Subscribe

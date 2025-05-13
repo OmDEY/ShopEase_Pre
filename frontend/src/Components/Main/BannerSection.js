@@ -1,4 +1,5 @@
 import React from 'react';
+import {useNavigate} from 'react-router-dom';
 
 const bannerData = [
     {
@@ -7,6 +8,7 @@ const bannerData = [
         description: 'Discover the latest trends in fashion with our new arrivals!',
         image: 'https://www.bullionknot.com/cdn/shop/files/Georgiamin_7.jpg?v=1715410709',
         buttonColor: 'bg-blue-500 hover:bg-blue-600',
+        route: '/new-arrivals',
     },
     {
         id: 2,
@@ -14,6 +16,7 @@ const bannerData = [
         description: 'Don’t miss out on our special offers just for you!',
         image: 'https://assets.ajio.com/medias/sys_master/root/20240406/as1C/6610dc7216fd2c6e6aa179c4/-473Wx593H-466410399-white-MODEL.jpg',
         buttonColor: 'bg-yellow-500 hover:bg-yellow-600',
+        route: '/discount-deals',
     },
     {
         id: 3,
@@ -21,10 +24,19 @@ const bannerData = [
         description: 'Get ready for summer with our vibrant and stylish collection.',
         image: 'https://outcasts.in/cdn/shop/products/4.png?v=1672548064&width=1080',
         buttonColor: 'bg-green-500 hover:bg-green-600',
+        route: '/bundle-offers',
     },
 ];
 
+
 const BannerSection = () => {
+    
+    const navigate = useNavigate();
+    
+    const handleRoute = (route) => {
+        navigate(route);
+    }
+
     return (
         <div className="container mx-auto my-12">
             <div className="flex space-x-6">
@@ -47,6 +59,7 @@ const BannerSection = () => {
                             <h2 className="text-3xl font-bold mb-4">{banner.title}</h2>
                             <p className="text-lg mb-6">{banner.description}</p>
                             <button
+                                onClick = {() => handleRoute(banner.route)}
                                 className={`${banner.buttonColor} text-white py-2 px-4 rounded-full transition-transform transform hover:scale-105`}
                             >
                                 Shop Now

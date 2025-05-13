@@ -220,14 +220,14 @@ const FeaturedCategories = () => {
                   )}
                   
                   {/* Quick Add to Cart */}
-                  <motion.button
+                  {/* <motion.button
                     className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white text-purple-600 px-4 py-2 rounded-full shadow-lg flex items-center opacity-0 group-hover:opacity-100 transition-all duration-300 font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <FiShoppingBag className="mr-2" />
                     Add to Cart
-                  </motion.button>
+                  </motion.button> */}
                 </div>
                 
                 <div className="p-4">

@@ -60,30 +60,34 @@ const AboutUs = () => {
   const teamMembers = [
     {
       id: 1,
-      name: "Alex Johnson",
+      name: "OM DEY",
       role: "CEO & Founder",
-      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cHJvZmlsZSUyMHBob3RvfGVufDB8fDB8fHww",
+      // image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cHJvZmlsZSUyMHBob3RvfGVufDB8fDB8fHww",
+      image: require('../../images/WhatsApp Image 2025-05-13 at 4.07.19 AM.jpeg'),
       bio: "Visionary leader with 10+ years in e-commerce"
     },
     {
       id: 2,
-      name: "Sarah Williams",
+      name: "Sumit",
       role: "Marketing Director",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZSUyMHBob3RvfGVufDB8fDB8fHww",
+      // image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZSUyMHBob3RvfGVufDB8fDB8fHww",
+      image: require('../../images/WhatsApp Image 2025-05-11 at 11.27.25 PM.jpeg'),
       bio: "Digital marketing expert and brand strategist"
     },
     {
       id: 3,
-      name: "Michael Chen",
+      name: "Shruti Pal",
       role: "CTO",
-      image: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGUlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D",
+      // image: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGUlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D",
+      image: require('../../images/WhatsApp Image 2025-05-11 at 11.26.58 PM.jpeg'),
       bio: "Tech innovator with passion for seamless user experiences"
     },
     {
       id: 4,
-      name: "Emily Rodriguez",
+      name: "Aditya",
       role: "Customer Success",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2ZpbGUlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D",
+      // image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2ZpbGUlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D",
+      image: require('../../images/WhatsApp Image 2025-05-11 at 11.29.33 PM.jpeg'),
       bio: "Dedicated to creating exceptional customer journeys"
     }
   ];

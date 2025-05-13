@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
-import { Range } from "react-range"; 
-import axios from "axios"; 
+import { Range } from "react-range";
+import axios from "axios";
 import { fetchProductsOnFilter } from "../../services/api";
 import { SearchContext } from "../../Context/ContextProvider";
 
@@ -18,7 +18,7 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
   const handleFilterChange = (filterCategory, option, type, label, priceRangeValues) => {
     setSelectedFilters((prevFilters) => {
       const updatedFilters = { ...prevFilters };
-  
+
       if (type === "checkbox") {
         // Ensure the label always holds an array for checkboxes
         updatedFilters[label] = updatedFilters[label] || [];
@@ -32,10 +32,10 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
       } else if (label === "priceRange" && priceRangeValues) {
         updatedFilters[label] = priceRangeValues; // Store as an array [min, max]
       }
-  
+
       return { ...updatedFilters };
     });
-  };  
+  };
 
   // Apply filters by making an API call
   const applyFilters = async () => {
@@ -69,6 +69,7 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
   // Clear all filters
   const clearAllFilters = () => {
     setSelectedFilters({});
+    setValues([MIN, MAX]);
   };
 
   return (
@@ -139,7 +140,10 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
                             id={option}
                             name={label}
                             className="form-radio h-5 w-5 text-indigo-600"
-                            onChange={() => handleFilterChange(category.categoryName, option, type, label)}
+                            onChange={() =>
+                              handleFilterChange(category.categoryName, option, type, label)
+                            }
+                            checked={selectedFilters[label] === option}
                           />
                           <label htmlFor={option} className="ml-2 text-gray-600">{option}</label>
                         </div>
@@ -162,7 +166,7 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
                               type="checkbox"
                               className="form-checkbox h-5 w-5 text-indigo-600"
                               onChange={() => handleFilterChange(category.categoryName, option, type, label)}
-                              checked={selectedFilters[category.categoryName]?.includes(option)}
+                              checked={selectedFilters[label]?.includes(option)}
                             />
                             <span className="text-gray-600">{option}</span>
                           </label>
@@ -180,6 +184,7 @@ const Filters = ({ filtersData, categories, handleFilterApply }) => {
                     <h4 className="text-lg font-semibold mb-2 text-gray-600">{label}</h4>
                     <select
                       className="w-full p-2 border rounded-lg"
+                      value={selectedFilters[label] || ""}
                       onChange={(e) => handleFilterChange(category.categoryName, e.target.value, type, label)}
                     >
                       <option value="">Select {label}</option>

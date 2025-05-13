@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMail, FiPhone, FiMapPin, FiSend, FiCheckCircle } from 'react-icons/fi';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { contactSupport } from '../../services/api';
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
@@ -22,24 +24,22 @@ const ContactUsPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setIsSubmitting(false);
     
     // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-      
-      // Reset submission status after 5 seconds
-      setTimeout(() => setIsSubmitted(false), 5000);
-    }, 2000);
+    await contactSupport(formData);
+    setIsSubmitted(true);
+    setFormData({
+      name: '',
+      email: '',
+      subject: '',
+      message: ''
+    });
+      // Show success toast
+      toast.success('Your message has been sent successfully!');
   };
 
   // Animation variants
@@ -147,7 +147,7 @@ const ContactUsPage = () => {
                     href="tel:+18005551234" 
                     className="text-indigo-600 hover:underline mt-2 block"
                   >
-                    +1 (800) 555-1234
+                    (+91) 9798561152
                   </a>
                 </div>
               </div>

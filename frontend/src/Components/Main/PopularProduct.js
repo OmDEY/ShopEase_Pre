@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { fetchPopularProducts } from '../../services/api';
+import { fetchPopularProducts,addToCart, removeFromWishlist, addToWishlist } from '../../services/api';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const PopularProduct = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [categories, setCategories] = useState(['All']);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPopularProductsData = async () => {
@@ -27,12 +31,43 @@ const PopularProduct = () => {
     fetchPopularProductsData();
   }, []);
 
+  const handleAddToCart = async (productId) => {
+    try {
+      let userId = localStorage.getItem("userId");
+      await addToCart(productId, 1);
+      toast.success("Added to cart");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+    }
+  };
+
+  const toggleWishlistItem = async (productId) => {
+    try {
+      if (isInWishlist) {
+        let userId = localStorage.getItem("userId");
+        await removeFromWishlist(userId, productId);
+        setIsInWishlist(false);
+        toast.info("Removed from wishlist");
+      } else {
+        // Add to wishlist
+        let userId = localStorage.getItem("userId");
+        await addToWishlist(userId, productId);
+        setIsInWishlist(true);
+        toast.success("Added to wishlist");
+      }
+
+      setIsInWishlist(!isInWishlist);
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+    }
+  };
+
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
     setFilteredProducts(
       category === 'All'
         ? products
-        : products.filter(p => (p.category?.name || 'Unknown') === category)
+        : products.filter(p => (p.category?.name || null) === category)
     );
   };
 
@@ -64,13 +99,13 @@ const PopularProduct = () => {
               <img src={product.images?.[0]} alt={product.title} className="w-full h-32 object-cover rounded-lg" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 hover:opacity-100">
                 <div className="flex space-x-2">
-                  <button className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
+                  <button onClick={() => toggleWishlistItem(product._id)} className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
                     <i className="fas fa-heart"></i>
                   </button>
-                  <button className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
+                  {/* <button className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
                     <i className="fas fa-random"></i>
-                  </button>
-                  <button className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
+                  </button> */}
+                  <button onClick={() => navigate(`/product?productId=${product._id}`)} className="bg-gray-700 text-white p-2 rounded-full hover:bg-gray-800">
                     <i className="fas fa-eye"></i>
                   </button>
                 </div>
@@ -90,12 +125,12 @@ const PopularProduct = () => {
               <p className="text-sm text-gray-600 mt-2">{product.brand}</p>
               <p className="text-lg font-semibold mt-2">${product.price}</p>
               <div className="mt-4 flex space-x-2">
-                <button className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600">
+                <button onClick={() => handleAddToCart(product._id)} className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600">
                   Add to Cart
                 </button>
-                <button className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600">
+                {/* <button className="bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600">
                   Buy Now
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

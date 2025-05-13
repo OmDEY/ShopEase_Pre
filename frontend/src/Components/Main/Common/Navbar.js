@@ -7,7 +7,6 @@ import {
   FaShoppingCart,
   FaSearch,
   FaBars,
-  FaMapMarkerAlt,
   FaChevronDown,
   FaChevronRight,
   FaLaptop,
@@ -24,7 +23,6 @@ import {
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { SearchContext } from "../../../Context/ContextProvider";
-import axios from "axios";
 import { fetchUserById } from "../../../services/api";
 
 const Navbar = () => {
@@ -33,6 +31,7 @@ const Navbar = () => {
   const [userName, setUserName] = useState("");
   const [isAccountDropdown, setIsAccountDropdown] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
   const navigate = useNavigate();
 
   const { setSearchTerm } = useContext(SearchContext);
@@ -230,92 +229,47 @@ const Navbar = () => {
         { label: "Terms & Conditions", link: "/terms-conditions" },
       ],
     },
-    // {
-    //   name: "Blog",
-    //   link: "/blog",
-    //   dropdown: [
-    //     { label: "Latest Posts", link: "/blog/latest-posts" },
-    //     { label: "Product Reviews", link: "/blog/product-reviews" },
-    //     { label: "Buying Guides", link: "/blog/buying-guides" },
-    //   ],
-    // },
-    // {
-    //   name: "Vendors",
-    //   link: "/vendors",
-    //   dropdown: [
-    //     { label: "Become a Vendor", link: "/vendors/become" },
-    //     { label: "Vendor Directory", link: "/vendors/directory" },
-    //     { label: "Vendor Dashboard", link: "/vendors/dashboard" },
-    //   ],
-    // },
   ];
-  
 
   return (
     <div>
       {/* First section - Top bar */}
       <div className="navbar relative text-white p-2 h-7 overflow-hidden">
         <div className="container mx-auto flex justify-between items-center relative z-10">
-          <div className="flex space-x-4">
-            <Link to="/about" className="text-sm cursor-pointer hover:underline">
+          <div className="flex space-x-4 text-xs md:text-sm">
+            <Link to="/about" className="cursor-pointer hover:underline">
               About Us
             </Link>
-            <span className="text-sm">|</span>
+            <span>|</span>
             <Link
               to="/profile"
-              className="text-sm cursor-pointer hover:underline"
+              className="cursor-pointer hover:underline"
             >
               My Account
             </Link>
-            <span className="text-sm">|</span>
+            <span>|</span>
             <Link
               to="/wishlist"
-              className="text-sm cursor-pointer hover:underline"
+              className="cursor-pointer hover:underline"
             >
               Wishlist
             </Link>
-            <span className="text-sm">|</span>
+            <span>|</span>
             <Link
               to="/orders"
-              className="text-sm cursor-pointer hover:underline"
+              className="cursor-pointer hover:underline"
             >
               Order Tracking
             </Link>
           </div>
-          <span className="text-sm hidden md:block">
+          <span className="text-xs md:text-sm hidden md:block">
             100% Genuine Products & Secure Delivery
           </span>
           <div className="flex space-x-4">
-            <span className="text-sm cursor-pointer hover:underline">
+            <span className="text-xs md:text-sm cursor-pointer hover:underline">
               <FaHeadphones className="inline mr-1" />
-              Need Help? Call Us
+              Need Help? Call Us at (+91) 9798561152 
             </span>
-            {/* <span className="text-sm hidden md:inline">|</span> */}
-            {/* <div className="hidden md:block relative group">
-              <span className="text-sm cursor-pointer hover:underline flex items-center">
-                Language <FaChevronDown className="ml-1 text-xs" />
-              </span>
-              <div className="absolute right-0 mt-2 w-32 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <div className="p-2">
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">English</div>
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">Spanish</div>
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">French</div>
-                </div>
-              </div>
-            </div> */}
-            {/* <span className="text-sm hidden md:inline">|</span>
-            <div className="hidden md:block relative group">
-              <span className="text-sm cursor-pointer hover:underline flex items-center">
-                Currency <FaChevronDown className="ml-1 text-xs" />
-              </span>
-              <div className="absolute right-0 mt-2 w-32 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <div className="p-2">
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">USD ($)</div>
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">EUR (€)</div>
-                  <div className="block px-2 py-1 hover:bg-gray-100 rounded">GBP (£)</div>
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
@@ -324,7 +278,7 @@ const Navbar = () => {
       <div className="bg-white shadow p-4">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo */}
-          <Link to="/" className="text-3xl font-bold text-gray-800 hover:text-pink-600 transition-colors">
+          <Link to="/" className="text-2xl md:text-3xl font-bold text-gray-800 hover:text-pink-600 transition-colors">
             ShopEase
           </Link>
 
@@ -333,55 +287,39 @@ const Navbar = () => {
             <input
               type="text"
               value={productSearchTerm}
-              onChange={(e) => setProductSearchTerm(e.target.value)}
+              onChange={(e) => {setSearchTerm(e.target.value); setProductSearchTerm(e.target.value)}}
               onKeyPress={(e) => e.key === 'Enter' && handleProductSearch()}
-              className="px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-600 rounded-l-full"
+              className="px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-600 rounded-l-full text-sm md:text-base"
               placeholder="Search for products..."
             />
             <button
               onClick={handleProductSearch}
-              className="flex items-center justify-center bg-pink-500 text-white p-3 transition-all duration-300 hover:bg-pink-600 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-600"
+              className="flex items-center justify-center bg-pink-500 text-white p-2 md:p-3 transition-all duration-300 hover:bg-pink-600 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-600"
             >
-              <FaSearch className="text-xl" />
+              <FaSearch className="text-lg md:text-xl" />
             </button>
           </div>
 
           {/* Icons */}
           <div className="flex space-x-4 md:space-x-6 text-gray-600 items-center">
-            {/* <div className="hidden md:flex items-center group relative">
-              <FaMapMarkerAlt className="mr-1 text-xl text-blue-600" />
-              <span className="text-sm cursor-pointer hover:underline">
-                Your Location
-              </span>
-              <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-md p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <h4 className="font-semibold mb-2">Select Your Location</h4>
-                <select className="w-full p-2 border rounded">
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                  <option>Canada</option>
-                  <option>Australia</option>
-                </select>
-              </div>
-            </div> */}
-            
-            <div className="hidden md:flex items-center group relative">
-              <FaSyncAlt className="cursor-pointer text-xl hover:text-pink-600 transition-colors" />
-              <Link to="/comparison" className="text-sm cursor-pointer hover:underline ml-1">
+            <div className="hidden md:flex items-center">
+              <FaSyncAlt className="cursor-pointer text-lg md:text-xl hover:text-pink-600 transition-colors" />
+              <Link to="/comparison" className="text-xs md:text-sm cursor-pointer hover:underline ml-1">
                 Compare
               </Link>
             </div>
             
             <div className="hidden md:flex items-center">
-              <FaHeart className="cursor-pointer text-xl hover:text-pink-600 transition-colors" />
-              <Link to="/wishlist" className="text-sm cursor-pointer hover:underline ml-1">
+              <FaHeart className="cursor-pointer text-lg md:text-xl hover:text-pink-600 transition-colors" />
+              <Link to="/wishlist" className="text-xs md:text-sm cursor-pointer hover:underline ml-1">
                 Wishlist
               </Link>
             </div>
             
             <div className="relative group">
               <button onClick={toggleAccountDropdown} className="flex items-center">
-                <FaUser className="cursor-pointer text-xl hover:text-pink-600 transition-colors" />
-                <span className="text-sm cursor-pointer hover:underline ml-1 hidden md:inline">
+                <FaUser className="cursor-pointer text-lg md:text-xl hover:text-pink-600 transition-colors" />
+                <span className="text-xs md:text-sm cursor-pointer hover:underline ml-1 hidden md:inline">
                   {userName ? userName : "Account"}
                 </span>
               </button>
@@ -456,15 +394,14 @@ const Navbar = () => {
             
             <div className="relative group">
               <Link to="/cart" className="flex items-center">
-                <FaShoppingCart className="cursor-pointer text-xl hover:text-pink-600 transition-colors" />
-                <span className="text-sm cursor-pointer hover:underline ml-1 hidden md:inline">
+                <FaShoppingCart className="cursor-pointer text-lg md:text-xl hover:text-pink-600 transition-colors" />
+                <span className="text-xs md:text-sm cursor-pointer hover:underline ml-1 hidden md:inline">
                   Cart
                 </span>
-                <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {/* <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   0
-                </span>
+                </span> */}
               </Link>
-              {/* Mini cart dropdown would go here */}
             </div>
           </div>
         </div>
@@ -472,18 +409,18 @@ const Navbar = () => {
 
       {/* Third section - Category navigation */}
       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 md:p-4">
-        <div className="container mx-auto flex justify-between items-center relative">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center relative">
           {/* Dropdowns */}
-          <div className="flex items-center md:space-x-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center w-full md:w-auto">
             {/* All Categories Dropdown */}
             <div className="relative w-full md:w-auto mb-2 md:mb-0">
               <button
                 onClick={toggleDropdown}
-                className="cursor-pointer flex items-center space-x-1 text-white hover:bg-blue-700 px-4 py-2 rounded-md transition-colors duration-300 w-full md:w-auto justify-between md:justify-center"
+                className="cursor-pointer flex items-center space-x-1 text-white hover:bg-blue-700 px-3 py-1 md:px-4 md:py-2 rounded-md transition-colors duration-300 w-full md:w-auto justify-between md:justify-center"
               >
                 <div className="flex items-center">
                   <FaBars className="text-white mr-2" /> 
-                  <span>All Categories</span>
+                  <span className="text-sm md:text-base">All Categories</span>
                 </div>
                 <FaChevronDown className={`ml-2 transition-transform duration-300 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
               </button>
@@ -493,26 +430,34 @@ const Navbar = () => {
                 <div className="absolute left-0 top-full mt-1 bg-white text-black shadow-2xl rounded-b-lg transition-all duration-300 w-full md:w-[800px] z-50 border border-gray-200">
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {categories.map((category, index) => (
-                      <div key={index} className="group">
+                      <div 
+                        key={index} 
+                        className="relative group"
+                        onMouseEnter={() => setHoveredCategory(index)}
+                        onMouseLeave={() => setHoveredCategory(null)}
+                      >
                         <div className="flex items-center p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
                           <span className="text-blue-600">{category.icon}</span>
                           <span className="font-medium">{category.name}</span>
                           <FaChevronRight className="ml-auto text-gray-400 group-hover:text-gray-600" />
                         </div>
-                        <div className="ml-6 mt-1 hidden group-hover:block absolute left-full top-0 w-48 bg-white shadow-lg rounded-md p-2 z-10 border border-gray-200">
-                          {category.subcategories.map((sub, subIndex) => (
-                            <div 
-                              key={subIndex} 
-                              className="p-2 hover:bg-gray-100 rounded cursor-pointer"
-                              onClick={() => {
-                                navigate(`/products?category=${category.name}&subcategory=${sub}`);
-                                setIsDropdownOpen(false);
-                              }}
-                            >
-                              {sub}
-                            </div>
-                          ))}
-                        </div>
+                        {hoveredCategory === index && (
+                          <div className="absolute left-full top-0 ml-1 w-48 bg-white shadow-lg rounded-md p-2 z-10 border border-gray-200">
+                            {category.subcategories.map((sub, subIndex) => (
+                              <div 
+                                key={subIndex} 
+                                className="p-2 hover:bg-gray-100 rounded cursor-pointer"
+                                onClick={() => {
+                                  setSearchTerm(`${sub}`);
+                                  navigate(`/products?category=${category.name}&subcategory=${sub}`);
+                                  setIsDropdownOpen(false);
+                                }}
+                              >
+                                {sub}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -534,13 +479,13 @@ const Navbar = () => {
             </div>
             
             {/* Navigation Items */}
-            <div className="flex flex-wrap items-center space-x-0 md:space-x-6 space-y-2 md:space-y-0 w-full md:w-auto">
+            <div className="flex flex-wrap items-center space-x-0 md:space-x-4 lg:space-x-6 space-y-2 md:space-y-0 w-full md:w-auto">
               {navItems.map((item, index) => (
                 <div key={index} className="relative group">
                   {item.link ? (
                     <Link
                       to={item.link}
-                      className="flex items-center px-2 py-1 hover:bg-blue-700 rounded transition-colors duration-300"
+                      className="flex items-center px-2 py-1 hover:bg-blue-700 rounded transition-colors duration-300 text-sm md:text-base"
                       onMouseEnter={() => item.dropdown && toggleNavDropdown(item.name)}
                     >
                       <span>{item.name}</span>
@@ -550,7 +495,7 @@ const Navbar = () => {
                     </Link>
                   ) : (
                     <button
-                      className="flex items-center px-2 py-1 hover:bg-blue-700 rounded transition-colors duration-300"
+                      className="flex items-center px-2 py-1 hover:bg-blue-700 rounded transition-colors duration-300 text-sm md:text-base"
                       onMouseEnter={() => item.dropdown && toggleNavDropdown(item.name)}
                     >
                       <span>{item.name}</span>
@@ -589,7 +534,7 @@ const Navbar = () => {
               <span className="font-semibold text-white text-sm">
                 24/7 Support
               </span>
-              <span className="text-white font-bold text-sm">+123-456-789</span>
+              <span className="text-white font-bold text-sm">(+91) 9798561152</span>
             </div>
           </div>
         </div>

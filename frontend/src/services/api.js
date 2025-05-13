@@ -553,6 +553,41 @@ const deleteCancelledOrder = async (orderId) => {
   return response;
 };
 
+const fetchTopDealsOfTheDay = async () => {
+  const response = await axios.get(
+    `${API_URL}deals-of-the-day/top-deals-of-the-day`
+  );
+  return response.data;
+};
+
+const createCODOrder = async (payload) => {
+  const response = await axios.post(
+    `${API_URL}payment/create-cod-order`,
+    payload
+  );
+  return response;
+};
+
+const fetchTwoProductsPerCategory = async () => {
+  const response = await axios.get(
+    `${API_URL}products/fetchTwoProductsPerCategory`
+  );
+  return response.data;
+};
+
+const addToNewsletterEmail = async (payload) => {
+  const response = await axios.post(
+    `${API_URL}users/addToNewsletterEmail`,
+    payload
+  );
+  return response;
+};
+
+const contactSupport = async (payload) => {
+  const response = await axios.post(`${API_URL}users/contact`, payload);
+  return response;
+};
+
 export {
   fetchUserById,
   fetchHomePageBannerCarouselImages,
@@ -616,4 +651,9 @@ export {
   processRefund,
   restockCancelledProducts,
   deleteCancelledOrder,
+  fetchTopDealsOfTheDay,
+  createCODOrder,
+  fetchTwoProductsPerCategory,
+  addToNewsletterEmail,
+  contactSupport
 };
