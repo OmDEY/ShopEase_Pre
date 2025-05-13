@@ -36,5 +36,14 @@ module.exports = {
     addOrderStatusEmail: (data) => {
         console.log(`📤 Queueing order status email for: ${data.email}`);
         emailQueue.add('orderStatusEmail', data);
-    }
+    },
+    // Add this export inside module.exports in email.queue.js
+    addNewsletterEmail: ({ email, firstName, subject, content }) => {
+        console.log(`📤 Queueing newsletter email to: ${email}`);
+        emailQueue.add('newsletterEmail', { email, firstName, subject, content });
+    },
+    addContactEmail: ({ name, email, subject, message }) => {
+        console.log(`📤 Queueing contact form email from: ${email}`);
+        emailQueue.add('contactEmail', { name, email, subject, message });
+    }    
 };

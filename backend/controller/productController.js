@@ -288,75 +288,80 @@ const deleteProduct = async (req, res) => {
 };
 
 const fetchProductsOnFilter = async (req, res) => {
-  /*try {
-    const { filters } = req.query;
-    const products = await Product.find({ filters });
-    return res.status(200).json({ products });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
-  }*/
-
   try {
-    let filters = {};
+    const {
+      category,
+      Brand,
+      colors,
+      priceRange,
+      searchTerm,
+      ...otherFilters
+    } = req.query;
 
-    // Extract query parameters
-    const { category, Brand, colors, priceRange, searchTerm, ...otherFilters } =
-      req.query;
+    console.log('query >>>> ', req.query)
 
-    console.log("query >>> ", req.query);
+    const filterArray = [];
 
-    // Category filter
+    // Category
     if (category) {
-      filters.category = category;
+      filterArray.push({ category });
     }
 
-    // Brand filter
+    // Brand filtering
     if (Brand) {
-      filters.$or = [
-        { brand: new RegExp(`^${Brand}$`, "i") },
-        { "categoryDetails.Brand": new RegExp(`^${Brand}$`, "i") },
-      ];
+      console.log('Brand >>>> ', Brand)
+      const brandRegex = new RegExp(`^${Brand}$`, "i");
+      console.log('brandRegex >>>>> ', brandRegex)
+      filterArray.push({
+        $or: [
+          { brand: brandRegex },
+          { "categoryDetails.Brand": brandRegex },
+        ],
+      });
     }
 
-    // Colors filter (Multiple values comma-separated)
+    // Colors
     if (colors) {
       const colorsArray = colors.split(",");
-      filters.colors = { $in: colorsArray };
+      filterArray.push({ colors: { $in: colorsArray } });
     }
 
-    // Price Range filter
+    // Price range
     if (priceRange) {
       const [min, max] = priceRange.split(",").map(Number);
-      filters.price = { $gte: min, $lte: max };
+      filterArray.push({ price: { $gte: min, $lte: max } });
     }
 
-    // Dynamic filters inside categoryDetails
-    Object.keys(otherFilters).forEach((key) => {
-      if (key == "Warranty") {
-        otherFilters[key] = otherFilters[key].split(" ")[0];
+    // Search term (on title and description)
+    if (searchTerm) {
+      console.log('searchTerm >>>> ', searchTerm)
+      const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      console.log('regex >>>> ', regex)
+      filterArray.push({
+        $or: [
+          { title: { $regex: regex } },
+          { description: { $regex: regex } },
+        ],
+      });
+    }
+
+    // Dynamic filters from categoryDetails
+    Object.entries(otherFilters).forEach(([key, value]) => {
+      const filterKey = `categoryDetails.${key.toLowerCase()}`;
+      if (Array.isArray(value)) {
+        filterArray.push({ [filterKey]: { $in: value } });
+      } else if (typeof value === "string" && value.includes(",")) {
+        filterArray.push({ [filterKey]: { $in: value.split(",") } });
+      } else {
+        filterArray.push({ [filterKey]: value });
       }
-      filters[`categoryDetails.${key.toLowerCase()}`] = otherFilters[key];
     });
 
-    if (searchTerm) {
-      // Escape special regex characters in the search term
-      const escapedSearchTerm = searchTerm.replace(
-        /[.*+?^=!:${}()|\[\]\/\\]/g,
-        "\\$&"
-      );
+    const finalQuery = filterArray.length > 0 ? { $and: filterArray } : {};
 
-      // Create the query for title and description using new RegExp
-      filters.$or = [
-        { title: { $regex: escapedSearchTerm, $options: "i" } },
-        { description: { $regex: escapedSearchTerm, $options: "i" } },
-      ];
-    }
+    console.log("finalQuery >>>", JSON.stringify(finalQuery, null, 2));
 
-    console.log("filters", filters);
-
-    // Fetch products based on filters
-    const products = await Product.find(filters).populate(
+    const products = await Product.find(finalQuery).populate(
       "category",
       "categoryName"
     );
@@ -367,6 +372,8 @@ const fetchProductsOnFilter = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+
 
 const fetchProductsFiltered = async (req, res) => {
   try {
@@ -560,6 +567,30 @@ const userReturnProduct = async (req, res) => {
   }
 };
 
+const fetchTwoProductsPerCategory = async (req, res) => {
+  try {
+    // Fetch categories
+    const categories = await Category.find().limit(4).exec();
+
+    // Initialize a response object
+    const categoryProducts = {};
+
+    // Fetch two products from each category
+    for (const category of categories) {
+      const products = await Product.find({ category: category._id })
+        .limit(2)
+        .exec();
+      categoryProducts[category.categoryName] = products;
+    }
+
+    // Send the products grouped by category
+    res.status(200).json(categoryProducts);
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 
 module.exports = {
   addProduct,
@@ -571,5 +602,6 @@ module.exports = {
   submitProductReview,
   fetchOptions,
   fetchProductsOnFilter,
-  userReturnProduct
+  userReturnProduct,
+  fetchTwoProductsPerCategory
 };

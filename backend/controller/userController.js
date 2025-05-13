@@ -2,6 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { addWelcomeEmail } = require("../Queue/emailQueue");
+const { addNewsletterEmail } = require('../Queue/emailQueue');
+const { addContactEmail } = require('../Queue/emailQueue');
+
 require("dotenv").config();
 
 const verifyToken = async (req, res) => {
@@ -195,6 +198,38 @@ const addShippingAddress = async (req, res) => {
   }
 };
 
+const addToNewsletterEmail = async (req, res) => {
+
+  const { email, firstName} = req.body;
+
+  addNewsletterEmail({
+    email: email,
+    firstName: firstName,
+    subject: '🚀 Big Sale this Weekend!',
+    content: 'We’re offering up to 50% off on selected items. Don’t miss out!',
+  });
+
+  res.status(200).json({
+    message: "NewsLetter Subscribed Successfully"
+  })
+}
+
+const contactSupport = async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+      return res.status(400).json({ error: 'All fields are required.' });
+  }
+
+  try {
+      addContactEmail({ name, email, subject, message });
+      res.status(200).json({ success: true, message: 'Contact email queued.' });
+  } catch (err) {
+      console.error('Error queueing contact email:', err.message);
+      res.status(500).json({ error: 'Failed to queue contact email.' });
+  }
+}
+
 module.exports = {
   fetchAllUsers,
   registerUser,
@@ -203,4 +238,6 @@ module.exports = {
   getUserById,
   verifyToken,
   addShippingAddress,
+  addToNewsletterEmail,
+  contactSupport
 };

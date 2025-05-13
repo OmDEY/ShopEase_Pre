@@ -161,7 +161,13 @@ const createCODOrder = async (req, res) => {
       orderStatus: "Processing",
     });
 
-    await order.populate("items.product");
+    await order.populate({
+      path: "items.product",
+      model: "Product",
+    });
+
+    // ✅ Step 3: Populate user info
+    await order.populate("user");
 
     const pdfBuffer = await generateInvoice(order);
 
